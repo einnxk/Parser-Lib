@@ -33,7 +33,7 @@ publishing {
             artifact(tasks["sourcesJar"])
             artifact(tasks["javadocJar"])
 
-            artifactId = "Yamler-Core"
+            artifactId = "yamler-core"
         }
     }
 }
