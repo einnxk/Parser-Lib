@@ -8,9 +8,8 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":common"))
     implementation(rootProject.libs.gson)
-
-    testImplementation(kotlin("test"))
 }
 
 kotlin {
@@ -21,8 +20,8 @@ tasks.shadowJar {
     archiveClassifier.set("")
 
     relocate(
-        "org.yaml.snakeyaml",
-        "de.einnik.yamler_v3.libs.snakeyaml"
+        "com.google.gson",
+        "com.github.einnxk.libs.gson"
     )
 }
 

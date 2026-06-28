@@ -29,7 +29,6 @@ import java.io.IOException
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.nio.charset.Charset
-
 /**
  * The bootstrap which handles all the writing and reading. We read the YAML file
  * save comments and create ConfigSections and later also saves the ConfigSection
@@ -188,21 +187,6 @@ open class BaseConfigMapper : ConfigBase() {
         } catch (e: IOException) {
             throw InvalidConfigurationException("Could not save YML", e)
         }
-    }
-
-    private fun join(list: MutableList<String?>, conjunction: String?): String {
-        val sb = StringBuilder()
-        var first = true
-        for (item in list) {
-            if (first) {
-                first = false
-            } else {
-                sb.append(conjunction)
-            }
-            sb.append(item)
-        }
-
-        return sb.toString()
     }
 
     fun addComment(key: String, value: String) {

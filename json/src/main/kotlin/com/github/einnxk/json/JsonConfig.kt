@@ -15,5 +15,8 @@
  */
 package com.github.einnxk.json
 
-abstract class JsonConfig {
+import com.github.einnxk.common.interfaces.Config
+
+abstract class JsonConfig :  Config {
+
 }

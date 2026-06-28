@@ -22,7 +22,7 @@ tasks.shadowJar {
 
     relocate(
         "org.yaml.snakeyaml",
-        "de.einnik.yamler_v3.libs.snakeyaml"
+        "com.github.einnxk.libs.snakeyaml"
     )
 }
 
