@@ -2,7 +2,7 @@
 [![GitHub release](https://img.shields.io/github/v/release/einnxk/Parser-Lib?logo=github&color=blue)](https://github.com/einnxk/Parser-Lib/releases)
 
 # Parser-Lib
-Parser-Lib is a modern Kotlin/Java library which supports easy parsing of files. The following file types are
+Parser-Lib is a modern Kotlin/Java library which allows easy parsing of files. The following file types are
 supported: 
 
 - `yaml`
