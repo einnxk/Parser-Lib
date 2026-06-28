@@ -34,7 +34,7 @@ import java.util.Properties
 open class BaseConfigMapper : ConfigBase() {
 
     @Transient
-    private val properties: Properties = Properties()
+    val properties: Properties = Properties()
     @Transient
     private val comments: MutableMap<String, MutableList<String>> = LinkedHashMap()
 
@@ -88,5 +88,16 @@ open class BaseConfigMapper : ConfigBase() {
         } catch (e: IOException) {
             throw InvalidConfigurationException("Could not save Properties", e)
         }
+    }
+
+    protected fun addComment(path: String, comment: String) {
+        val list = comments.getOrPut(path) {
+            mutableListOf()
+        }
+        list.add(comment)
+    }
+
+    protected fun clearComments() {
+        comments.clear()
     }
 }
