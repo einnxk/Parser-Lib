@@ -1,3 +1,3 @@
 rootProject.name = "Parser-Lib"
 
-include(":yamler-core")
+include(":yamler-core", ":yamler-paper")
