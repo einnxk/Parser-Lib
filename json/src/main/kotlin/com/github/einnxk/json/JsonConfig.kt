@@ -15,8 +15,80 @@
  */
 package com.github.einnxk.json
 
+import com.github.einnxk.common.exception.InvalidConfigurationException
 import com.github.einnxk.common.interfaces.Config
+import com.github.einnxk.json.mapper.JsonMapper
+import com.google.gson.JsonObject
+import org.jetbrains.annotations.NotNull
+import java.io.File
 
-abstract class JsonConfig :  Config {
+/**
+ * JsonConfig is the abstract base for any JSON-backed configuration class.
+ * Extend this class and define your fields - they will be automatically
+ * mapped to and from a JSON file on disk.
+ *
+ * @author EinNik
+ * @since 4.0.0-SNAPSHOT
+ */
+abstract class JsonConfig : JsonMapper(), Config {
 
+    @Throws(InvalidConfigurationException::class)
+    override fun save() {
+        requireNotNull(configFile) { "configFile is not set" }
+        try {
+            @Suppress("UNCHECKED_CAST")
+            val jsonObject = saveToMap(javaClass as Class<Any>)
+            saveToJson(jsonObject)
+        } catch (e: Exception) {
+            throw InvalidConfigurationException("Could not save JSON config", e)
+        }
+    }
+
+    @Throws(InvalidConfigurationException::class)
+    override fun save(@NotNull file: File) {
+        configFile = file
+        save()
+    }
+
+    @Throws(InvalidConfigurationException::class)
+    override fun init() {
+        requireNotNull(configFile) { "configFile is not set" }
+        if (!configFile!!.exists()) {
+            configFile!!.parentFile?.mkdirs()
+            configFile!!.createNewFile()
+            save()
+        } else {
+            load()
+        }
+    }
+
+    @Throws(InvalidConfigurationException::class)
+    override fun init(@NotNull file: File) {
+        configFile = file
+        init()
+    }
+
+    @Throws(InvalidConfigurationException::class)
+    override fun reload() {
+        requireNotNull(configFile) { "configFile is not set" }
+        load()
+    }
+
+    @Throws(InvalidConfigurationException::class)
+    override fun load() {
+        requireNotNull(configFile) { "configFile is not set" }
+        try {
+            val jsonObject: JsonObject = loadFromJson()
+            @Suppress("UNCHECKED_CAST")
+            loadMap(jsonObject, javaClass as Class<Any>)
+        } catch (e: Exception) {
+            throw InvalidConfigurationException("Could not load JSON config", e)
+        }
+    }
+
+    @Throws(InvalidConfigurationException::class)
+    override fun load(@NotNull file: File) {
+        configFile = file
+        load()
+    }
 }

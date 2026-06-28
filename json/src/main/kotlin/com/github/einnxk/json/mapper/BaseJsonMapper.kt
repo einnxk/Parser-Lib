@@ -1,3 +1,18 @@
+/*
+ * Copyright 2026-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.github.einnxk.json.mapper
 
 import com.github.einnxk.common.exception.InvalidConfigurationException
@@ -19,9 +34,6 @@ open class BaseJsonMapper : ConfigBase() {
     @Transient
     private val gson = GsonBuilder().setPrettyPrinting().create()
 
-    @Transient
-    private val comments: MutableMap<String, MutableList<String>> = LinkedHashMap()
-
     init {
         serializeConfigurationFromAnnotation()
     }
@@ -39,27 +51,10 @@ open class BaseJsonMapper : ConfigBase() {
     protected fun saveToJson(jsonObject: JsonObject) {
         try {
             OutputStreamWriter(FileOutputStream(configFile!!), Charsets.UTF_8).use { writer ->
-                configHeader?.let { header ->
-                    for (line in header) {
-                        writer.write("// $line\n")
-                    }
-                    writer.write("\n")
-                }
-
                 writer.write(gson.toJson(jsonObject))
             }
         } catch (e: IOException) {
             throw InvalidConfigurationException("Could not save JSON", e)
         }
     }
-
-    fun addComment(key: String, value: String) {
-        comments.getOrPut(key) { mutableListOf() }.add(value)
-    }
-
-    fun clearComments() {
-        comments.clear()
-    }
-
-    protected fun getComments(): Map<String, MutableList<String>> = comments
 }

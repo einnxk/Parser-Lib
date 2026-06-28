@@ -1,3 +1,18 @@
+/*
+ * Copyright 2026-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.github.einnxk.json.mapper
 
 import com.github.einnxk.common.annotations.*
@@ -38,14 +53,13 @@ open class JsonMapper : BaseJsonMapper() {
         for (field: Field in clazz.declaredFields) {
             if (doSkip(field)) continue
 
-            var path = resolveFieldPath(field)
+            val path = resolveFieldPath(field)
 
             if (Modifier.isPrivate(field.modifiers)) {
                 field.isAccessible = true
             }
 
-            val value = field.get(this)
-            jsonObject.add(path, gson.toJsonTree(value))
+            setNestedValue(jsonObject, path, gson.toJsonTree(field.get(this)))
         }
 
         return jsonObject
@@ -60,13 +74,13 @@ open class JsonMapper : BaseJsonMapper() {
         for (field: Field in clazz.declaredFields) {
             if (doSkip(field)) continue
 
-            var path = resolveFieldPath(field)
+            val path = resolveFieldPath(field)
 
             if (Modifier.isPrivate(field.modifiers)) {
                 field.isAccessible = true
             }
 
-            val element: JsonElement? = jsonObject.get(path)
+            val element: JsonElement? = getNestedValue(jsonObject, path)
 
             if (element == null || element.isJsonNull) {
                 validRequired(field)
@@ -78,6 +92,33 @@ open class JsonMapper : BaseJsonMapper() {
             validateRange(field)
             validRequired(field)
         }
+    }
+
+    private fun setNestedValue(jsonObject: JsonObject, path: String, value: JsonElement) {
+        val keys = path.split(".")
+        var current = jsonObject
+
+        for (i in 0 until keys.size - 1) {
+            val key = keys[i]
+            if (!current.has(key) || !current.get(key).isJsonObject) {
+                current.add(key, JsonObject())
+            }
+            current = current.getAsJsonObject(key)
+        }
+
+        current.add(keys.last(), value)
+    }
+
+    private fun getNestedValue(jsonObject: JsonObject, path: String): JsonElement? {
+        val keys = path.split(".")
+        var current: JsonElement = jsonObject
+
+        for (key in keys) {
+            if (!current.isJsonObject) return null
+            current = current.asJsonObject.get(key) ?: return null
+        }
+
+        return current
     }
 
     private fun resolveFieldPath(field: Field): String {
