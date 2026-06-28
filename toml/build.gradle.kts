@@ -10,6 +10,7 @@ repositories {
 dependencies {
     implementation(project(":common"))
     implementation(rootProject.libs.toml)
+    implementation(rootProject.libs.toml.kotlin)
 }
 
 kotlin {

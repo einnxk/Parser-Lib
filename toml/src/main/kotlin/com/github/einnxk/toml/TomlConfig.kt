@@ -1,10 +1,8 @@
 package com.github.einnxk.toml
 
-import com.fasterxml.jackson.databind.node.ObjectNode
 import com.github.einnxk.common.exception.InvalidConfigurationException
 import com.github.einnxk.common.interfaces.Config
 import com.github.einnxk.toml.mapper.TomlMapper
-import org.jetbrains.annotations.NotNull
 import java.io.File
 
 /**
@@ -30,7 +28,7 @@ abstract class TomlConfig : TomlMapper(), Config {
     }
 
     @Throws(InvalidConfigurationException::class)
-    override fun save(@NotNull file: File) {
+    override fun save(file: File) {
         configFile = file
         save()
     }
@@ -41,40 +39,37 @@ abstract class TomlConfig : TomlMapper(), Config {
         if (!configFile!!.exists()) {
             configFile!!.parentFile?.mkdirs()
             configFile!!.createNewFile()
-            save()
-        } else {
-            load()
         }
+        @Suppress("UNCHECKED_CAST")
+        loadMap(loadFromToml(), javaClass as Class<Any>)
     }
 
     @Throws(InvalidConfigurationException::class)
-    override fun init(@NotNull file: File) {
+    override fun init(file: File) {
         configFile = file
         init()
     }
 
     @Throws(InvalidConfigurationException::class)
     override fun reload() {
-        requireNotNull(configFile) { "configFile is not set" }
-        load()
+        @Suppress("UNCHECKED_CAST")
+        loadMap(loadFromToml(), javaClass as Class<Any>)
     }
 
     @Throws(InvalidConfigurationException::class)
     override fun load() {
         requireNotNull(configFile) { "configFile is not set" }
+        strictLoad = true
         try {
-            val node: ObjectNode = loadFromToml()
             @Suppress("UNCHECKED_CAST")
-            loadMap(node, javaClass as Class<Any>)
-        } catch (e: InvalidConfigurationException) {
-            throw e
-        } catch (e: Exception) {
-            throw InvalidConfigurationException("Could not load TOML config", e)
+            loadMap(loadFromToml(), javaClass as Class<Any>)
+        } finally {
+            strictLoad = false
         }
     }
 
     @Throws(InvalidConfigurationException::class)
-    override fun load(@NotNull file: File) {
+    override fun load(file: File) {
         configFile = file
         load()
     }

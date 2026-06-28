@@ -2,6 +2,7 @@ package com.github.einnxk.toml.mapper
 
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.dataformat.toml.TomlMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.github.einnxk.common.exception.InvalidConfigurationException
 import com.github.einnxk.toml.bootstrap.ConfigBase
 import java.io.FileInputStream
@@ -19,7 +20,12 @@ import java.io.OutputStreamWriter
 open class BaseTomlMapper : ConfigBase() {
 
     @Transient
-    protected val tomlMapper: TomlMapper = TomlMapper()
+    protected val tomlMapper: TomlMapper = TomlMapper().apply {
+        registerModule(KotlinModule.Builder().build())
+    }
+
+    @Transient
+    internal open var strictLoad: Boolean = false
 
     init {
         serializeConfigurationFromAnnotation()

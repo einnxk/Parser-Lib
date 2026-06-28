@@ -26,7 +26,7 @@ open class TomlMapper : BaseTomlMapper() {
 
         if (!clazz.superclass.equals(TomlConfig::class.java)) {
             val superNode = saveToMap(clazz.superclass)
-            superNode.fields().forEach { (key, value) -> node.set<JsonNode>(key, value) }
+            superNode.properties().forEach { (key, value) -> node.set<JsonNode>(key, value) }
         }
 
         for (field: Field in clazz.declaredFields) {
@@ -38,7 +38,10 @@ open class TomlMapper : BaseTomlMapper() {
                 field.isAccessible = true
             }
 
-            setNestedValue(node, path, tomlMapper.valueToTree(field.get(this)))
+            val value = field.get(this)
+            if (value != null) {
+                setNestedValue(node, path, tomlMapper.valueToTree(value))
+            }
         }
 
         return node
@@ -49,6 +52,8 @@ open class TomlMapper : BaseTomlMapper() {
         if (!clazz.superclass.equals(TomlConfig::class.java)) {
             loadMap(node, clazz.superclass)
         }
+
+        var needsSave = false
 
         for (field: Field in clazz.declaredFields) {
             if (doSkip(field)) continue
@@ -61,15 +66,33 @@ open class TomlMapper : BaseTomlMapper() {
 
             val element: JsonNode? = getNestedValue(node, path)
 
-            if (element == null || element.isNull) {
-                validRequired(field)
+            if (element == null || element.isNull || element.isMissingNode) {
+                if (strictLoad) {
+                    val required = field.getAnnotation(Required::class.java)
+                    if (required != null && required.value) {
+                        throw InvalidConfigurationException(
+                            "Required field '${field.name}' is missing in TOML"
+                        )
+                    }
+                }
+
+                val defaultValue = field.get(this)
+                if (defaultValue != null) {
+                    setNestedValue(node, path, tomlMapper.valueToTree(defaultValue))
+                    needsSave = true
+                }
+
                 continue
             }
 
-            field.set(this, tomlMapper.treeToValue(element, field.type))
+            field.set(this, tomlMapper.convertValue(element, field.type))
 
             validateRange(field)
-            validRequired(field)
+            if (strictLoad) validRequired(field)
+        }
+
+        if (needsSave) {
+            saveToToml(node)
         }
     }
 
@@ -113,29 +136,24 @@ open class TomlMapper : BaseTomlMapper() {
     }
 
     @Throws(InvalidConfigurationException::class)
-    private fun validRequired(field: Field) {
+    internal fun validRequired(field: Field) {
         field.isAccessible = true
-
         if (!field.isAnnotationPresent(Required::class.java)) return
-
         val required = field.getAnnotation(Required::class.java).value
         if (!required) return
-
         field.get(this) ?: throw InvalidConfigurationException(
             "A field annotated with @Required is null: ${field.name}"
         )
     }
 
     @Throws(InvalidConfigurationException::class)
-    private fun validateRange(field: Field) {
+    internal fun validateRange(field: Field) {
         field.isAccessible = true
-
         if (!field.isAnnotationPresent(Range::class.java)) return
 
         val range: Range = field.getAnnotation(Range::class.java)
         val min: Int = range.min
         val max: Int = range.max
-
         val value = field.get(this) ?: return
 
         when (value) {
@@ -143,10 +161,8 @@ open class TomlMapper : BaseTomlMapper() {
             is Short -> validateNumber(field.name, value.toLong(), min, max)
             is Int -> validateNumber(field.name, value.toLong(), min, max)
             is Long -> validateNumber(field.name, value, min, max)
-
             is Collection<*> -> validateSize(field.name, value.size, min, max)
             is Map<*, *> -> validateSize(field.name, value.size, min, max)
-
             is Array<*> -> validateSize(field.name, value.size, min, max)
             is ByteArray -> validateSize(field.name, value.size, min, max)
             is ShortArray -> validateSize(field.name, value.size, min, max)
@@ -156,7 +172,6 @@ open class TomlMapper : BaseTomlMapper() {
             is DoubleArray -> validateSize(field.name, value.size, min, max)
             is CharArray -> validateSize(field.name, value.size, min, max)
             is BooleanArray -> validateSize(field.name, value.size, min, max)
-
             else -> throw InvalidConfigurationException(
                 "@Range does not support type '${field.type.name}' (field '${field.name}')"
             )
