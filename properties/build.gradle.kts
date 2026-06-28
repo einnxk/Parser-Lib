@@ -9,7 +9,6 @@ repositories {
 
 dependencies {
     implementation(project(":common"))
-    implementation(rootProject.libs.gson)
 }
 
 kotlin {
@@ -18,11 +17,6 @@ kotlin {
 
 tasks.shadowJar {
     archiveClassifier.set("")
-
-    relocate(
-        "com.google.gson",
-        "com.github.einnxk.libs.gson"
-    )
 }
 
 publishing {
