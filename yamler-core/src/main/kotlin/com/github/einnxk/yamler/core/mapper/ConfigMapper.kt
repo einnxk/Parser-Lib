@@ -104,7 +104,7 @@ open class ConfigMapper : BaseConfigMapper() {
             }
 
             internalConverter.fromConfig(this as YamlConfig, field, ConfigSection.convertFromMap(section), path)
-
+            println("After fromConfig: field=${field.name}, value=${field.get(this)}")
             validateRange(field)
             validRequired(field)
         }

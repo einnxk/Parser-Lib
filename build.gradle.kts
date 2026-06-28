@@ -10,7 +10,7 @@ tasks.withType<Test> {
 }
 
 allprojects {
-    group = "com.github.einnxk"
+    group = "com.github.einnxk.parser"
     version = "3.0.11-SNAPSHOT"
 
     repositories {

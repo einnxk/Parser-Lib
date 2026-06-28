@@ -196,15 +196,22 @@ abstract class YamlConfig : ConfigMapper(),
             if (root!!.has(path!!)) {
                 try {
                     internalConverter.fromConfig(this, field, root!!, path)
+                    validateRange(field)
+                    validRequired(field)
+                } catch (e: InvalidConfigurationException) {
+                    throw e
                 } catch (e: java.lang.Exception) {
                     throw InvalidConfigurationException("Could not set field", e)
                 }
             } else {
                 try {
                     internalConverter.toConfig(this, field, root!!, path)
-                   internalConverter.fromConfig(this, field, root!!, path)
-
+                    internalConverter.fromConfig(this, field, root!!, path)
+                    validateRange(field)
+                    validRequired(field)
                     save = true
+                } catch (e: InvalidConfigurationException) {
+                    throw e
                 } catch (e: java.lang.Exception) {
                     if (!skipFailedObject) {
                         throw InvalidConfigurationException("Could not get field", e)
