@@ -3,9 +3,13 @@ lombok = "1.18.46"
 gson = "2.14.0"
 jetbrains = "26.1.0"
 jspecify = "1.0.0"
+toml = "2.21.2"
+toml-kotlin = "2.21.2"
 
 [libraries]
 lombok = {module = "org.projectlombok:lombok", version.ref = "lombok"}
 gson = {module = "com.google.code.gson:gson", version.ref = "gson"}
 jetbrains = {module = "org.jetbrains:annotations", version.ref = "jetbrains"}
 jspecify = {module = "org.jspecify:jspecify", version.ref = "jspecify"}
+toml = {module = "com.fasterxml.jackson.dataformat:jackson-dataformat-toml", version.ref = "toml"}
+toml-kotlin = {module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "toml-kotlin"}

@@ -24,7 +24,7 @@ import com.github.einnxk.common.interfaces.Config
 import com.github.einnxk.properties.PropertiesConfig
 import com.github.einnxk.tests.AbstractConfigTests
 
-class PropertiesTest : AbstractConfigTests() {
+class PropertiesConfigTest : AbstractConfigTests() {
 
     @SerializeOptions(configMode = ConfigMode.FIELD_IS_KEY)
     class SimpleProperties : PropertiesConfig() {
