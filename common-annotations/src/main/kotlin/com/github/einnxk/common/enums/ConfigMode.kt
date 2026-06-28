@@ -13,7 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.einnxk.json
+package com.github.einnxk.common.enums
 
-abstract class JsonConfig {
+/**
+ * The mode the keys in the YAML file are named
+ *
+ * @author EinNik
+ * @since 4.0.0-SNAPSHOT
+*/
+enum class ConfigMode {
+    DEFAULT,
+    PATH_BY_UNDERSCORE,
+    FIELD_IS_KEY
 }

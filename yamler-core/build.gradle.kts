@@ -8,6 +8,8 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":common-annotations"))
+
     implementation("org.yaml:snakeyaml:2.6")
 }
 
