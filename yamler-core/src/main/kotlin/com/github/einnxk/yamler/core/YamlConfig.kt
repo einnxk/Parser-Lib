@@ -19,8 +19,8 @@ import com.github.einnxk.common.annotations.Comment
 import com.github.einnxk.common.annotations.Comments
 import com.github.einnxk.common.annotations.Path
 import com.github.einnxk.common.enums.ConfigMode
-import com.github.einnxk.yamler.core.exception.InvalidConfigurationException
-import com.github.einnxk.yamler.core.interfaces.Config
+import com.github.einnxk.common.exception.InvalidConfigurationException
+import com.github.einnxk.common.interfaces.Config
 import com.github.einnxk.yamler.core.mapper.ConfigMapper
 import com.github.einnxk.yamler.core.section.ConfigSection
 import java.io.File

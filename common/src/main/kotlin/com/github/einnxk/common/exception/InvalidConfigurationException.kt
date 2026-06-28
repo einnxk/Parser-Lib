@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.einnxk.yamler.core.exception
+package com.github.einnxk.common.exception
 
 /**
- * An Exception that is thrown when the converter does not match what we
- * except it to do
+ * An Exception that is thrown when the file is missing required fields or
+ * these fields contains a type we didn't expect there
  *
  * @author EinNik
  * @since 3.0.0-SNAPSHOT
  */
-class InvalidConverterException @JvmOverloads constructor(
+class InvalidConfigurationException @JvmOverloads constructor(
     message: String? = null,
     cause: Throwable? = null
 ) : Exception(message, cause)

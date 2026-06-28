@@ -16,7 +16,7 @@
 package com.github.einnxk.yamler.core.mapper
 
 import com.github.einnxk.yamler.core.bootstrap.ConfigBase
-import com.github.einnxk.yamler.core.exception.InvalidConfigurationException
+import com.github.einnxk.common.exception.InvalidConfigurationException
 import com.github.einnxk.yamler.core.section.ConfigSection
 import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.LoaderOptions

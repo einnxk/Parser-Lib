@@ -20,7 +20,7 @@ import com.github.einnxk.common.annotations.SerializeOptions
 import com.github.einnxk.common.enums.ConfigMode
 import com.github.einnxk.yamler.core.converter.Converter
 import com.github.einnxk.yamler.core.converter.InternalConverter
-import com.github.einnxk.yamler.core.exception.InvalidConverterException
+import com.github.einnxk.common.exception.InvalidConverterException
 import org.jetbrains.annotations.NotNull
 import java.io.File
 import java.lang.reflect.Field

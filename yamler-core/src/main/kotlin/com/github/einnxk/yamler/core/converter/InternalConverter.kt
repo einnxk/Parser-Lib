@@ -17,7 +17,7 @@ package com.github.einnxk.yamler.core.converter
 
 import com.github.einnxk.common.annotations.PreserveStatic
 import com.github.einnxk.yamler.core.YamlConfig
-import com.github.einnxk.yamler.core.exception.InvalidConverterException
+import com.github.einnxk.common.exception.InvalidConverterException
 import com.github.einnxk.yamler.core.section.ConfigSection
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
