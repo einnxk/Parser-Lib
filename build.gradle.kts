@@ -1,7 +1,7 @@
 plugins {
     java
     `maven-publish`
-    id("com.gradleup.shadow") version "9.4.2" apply false
+    id("com.gradleup.shadow") version "9.4.3" apply false
     id("com.diffplug.spotless") version "7.2.1"
 }
 
