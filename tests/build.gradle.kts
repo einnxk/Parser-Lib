@@ -10,7 +10,7 @@ dependencies {
     testImplementation(project(":common"))
     testImplementation(project(":json", configuration = "shadow"))
     testImplementation(project(":yamler-core", configuration = "shadow"))
-    testImplementation(project(":yamler-paper"))
+    testImplementation(project(":properties", configuration = "shadow"))
 }
 
 tasks.test {

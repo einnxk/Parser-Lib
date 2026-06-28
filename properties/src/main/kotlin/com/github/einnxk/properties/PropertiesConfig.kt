@@ -18,6 +18,7 @@ package com.github.einnxk.properties
 import com.github.einnxk.common.annotations.Comment
 import com.github.einnxk.common.annotations.Comments
 import com.github.einnxk.common.annotations.Path
+import com.github.einnxk.common.annotations.validate.Required
 import com.github.einnxk.common.enums.ConfigMode
 import com.github.einnxk.common.exception.InvalidConfigurationException
 import com.github.einnxk.common.interfaces.Config
@@ -36,6 +37,7 @@ import java.lang.reflect.Modifier
  */
 abstract class PropertiesConfig : PropertiesConfigMapper(), Config {
 
+    private var strictLoad = false
     protected var initialized = false
 
     override fun save() {
@@ -67,12 +69,10 @@ abstract class PropertiesConfig : PropertiesConfigMapper(), Config {
         if (!configFile!!.exists()) {
             configFile!!.parentFile?.mkdirs()
             configFile!!.createNewFile()
-
-            save()
         }
 
-        load()
-        initialized = true
+        loadFromProperties()
+        internalLoad(javaClass)
     }
 
     override fun init(file: File) {
@@ -90,8 +90,10 @@ abstract class PropertiesConfig : PropertiesConfigMapper(), Config {
             throw IllegalStateException("Config file can not be null")
         }
 
+        strictLoad = true
         loadFromProperties()
         internalLoad(javaClass)
+        strictLoad = false
     }
 
     override fun load(file: File) {
@@ -151,15 +153,15 @@ abstract class PropertiesConfig : PropertiesConfigMapper(), Config {
         }
 
         var needsSave = false
-
         for (field in clazz.declaredFields) {
             if (doSkip(field)) continue
             val path = resolvePath(field)
             if (Modifier.isPrivate(field.modifiers)) {
                 field.isAccessible = true
             }
+            val exists = properties.containsKey(path)
 
-            if (properties.containsKey(path)) {
+            if (exists) {
                 try {
                     internalConverter.fromConfig(
                         this,
@@ -169,16 +171,25 @@ abstract class PropertiesConfig : PropertiesConfigMapper(), Config {
                     )
 
                     validateRange(field)
-                    validateRequired(field)
-
+                    if (strictLoad) {
+                        validateRequired(field)
+                    }
                 } catch (e: Exception) {
                     throw InvalidConfigurationException(
                         "Could not load field '${field.name}'",
                         e
                     )
                 }
-
             } else {
+                if (strictLoad) {
+                    val required = field.getAnnotation(Required::class.java)
+                    if (required != null && required.value) {
+                        throw InvalidConfigurationException(
+                            "Required field '${field.name}' is missing in properties"
+                        )
+                    }
+                }
+
                 try {
                     internalConverter.toConfig(
                         this,
@@ -195,13 +206,13 @@ abstract class PropertiesConfig : PropertiesConfigMapper(), Config {
                     )
 
                     validateRange(field)
-                    validateRequired(field)
-
                     needsSave = true
-
                 } catch (e: Exception) {
                     if (!skipFailedObject) {
-                        throw InvalidConfigurationException("Could not initialize field '${field.name}'", e)
+                        throw InvalidConfigurationException(
+                            "Could not initialize field '${field.name}'",
+                            e
+                        )
                     }
                 }
             }
