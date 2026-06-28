@@ -2,6 +2,7 @@ plugins {
     java
     `maven-publish`
     id("com.gradleup.shadow") version "9.4.2" apply false
+    id("com.diffplug.spotless") version "7.2.1"
 }
 
 tasks.withType<Test> {
@@ -20,6 +21,7 @@ allprojects {
 subprojects {
     apply(plugin = "java")
     apply(plugin = "maven-publish")
+    apply(plugin = "com.diffplug.spotless")
 
     java {
         withSourcesJar()
@@ -55,14 +57,18 @@ subprojects {
     dependencies {
         implementation(rootProject.libs.lombok)
         annotationProcessor(rootProject.libs.lombok)
-
         implementation(rootProject.libs.jetbrains)
-
         implementation(rootProject.libs.jspecify)
+
+        // tests
+        testImplementation(platform("org.junit:junit-bom:6.0.0"))
+        testImplementation("org.junit.jupiter:junit-jupiter")
+        testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+        testImplementation("org.assertj:assertj-core:3.26.3")
     }
 
     tasks.test {
-        useTestNG()
+        useJUnitPlatform()
     }
 
     tasks.processResources {
@@ -86,6 +92,15 @@ subprojects {
                     "name" to project.name
                 )
             )
+        }
+    }
+
+    spotless {
+        java {
+            licenseHeaderFile(rootProject.file("config/license-header.txt"), "^(package|import|module) ")
+        }
+        kotlin {
+            licenseHeaderFile(rootProject.file("config/license-header.txt"), "^(package|import|module) ")
         }
     }
 }
