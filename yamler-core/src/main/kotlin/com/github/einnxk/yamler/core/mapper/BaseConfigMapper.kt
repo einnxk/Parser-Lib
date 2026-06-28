@@ -29,6 +29,7 @@ import java.io.IOException
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.nio.charset.Charset
+
 /**
  * The bootstrap which handles all the writing and reading. We read the YAML file
  * save comments and create ConfigSections and later also saves the ConfigSection
