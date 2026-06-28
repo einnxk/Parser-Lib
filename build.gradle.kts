@@ -2,7 +2,7 @@ plugins {
     java
     `maven-publish`
     id("com.gradleup.shadow") version "9.4.3" apply false
-    id("com.diffplug.spotless") version "7.2.1"
+    id("com.diffplug.spotless") version "8.7.0"
 }
 
 tasks.withType<Test> {
