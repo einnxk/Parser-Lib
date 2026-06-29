@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "2.4.0"
+    kotlin("jvm") version "2.3.21"
     id("com.gradleup.shadow") version "9.4.3"
 }
 
@@ -9,6 +9,8 @@ repositories {
 
 dependencies {
     implementation(project(":common"))
+    implementation(rootProject.libs.xml)
+    implementation(rootProject.libs.xml.kotlin)
 }
 
 kotlin {
@@ -17,6 +19,11 @@ kotlin {
 
 tasks.shadowJar {
     archiveClassifier.set("")
+
+    relocate(
+        "com.fasterxml.jackson",
+        "com.github.einnxk.libs.xml"
+    )
 }
 
 publishing {
@@ -26,7 +33,7 @@ publishing {
             artifact(tasks["sourcesJar"])
             artifact(tasks["javadocJar"])
 
-            artifactId = "properties"
+            artifactId = "xml"
         }
     }
 }

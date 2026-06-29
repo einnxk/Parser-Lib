@@ -4,7 +4,7 @@ gson = "2.14.0"
 jetbrains = "26.1.0"
 jspecify = "1.0.0"
 toml = "2.22.0"
-toml-kotlin = "2.22.0"
+xml = "2.21.2"
 
 [libraries]
 lombok = {module = "org.projectlombok:lombok", version.ref = "lombok"}
@@ -12,4 +12,6 @@ gson = {module = "com.google.code.gson:gson", version.ref = "gson"}
 jetbrains = {module = "org.jetbrains:annotations", version.ref = "jetbrains"}
 jspecify = {module = "org.jspecify:jspecify", version.ref = "jspecify"}
 toml = {module = "com.fasterxml.jackson.dataformat:jackson-dataformat-toml", version.ref = "toml"}
-toml-kotlin = {module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "toml-kotlin"}
+toml-kotlin = {module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "toml"}
+xml = {module = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml", version.ref = "xml"}
+xml-kotlin = {module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "xml"}
