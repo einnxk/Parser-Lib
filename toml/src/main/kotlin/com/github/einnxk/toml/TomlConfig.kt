@@ -51,6 +51,7 @@ abstract class TomlConfig : TomlMapper(), Config {
     @Throws(InvalidConfigurationException::class)
     override fun init() {
         requireNotNull(configFile) { "configFile is not set" }
+
         if (!configFile!!.exists()) {
             configFile!!.parentFile?.mkdirs()
             configFile!!.createNewFile()
