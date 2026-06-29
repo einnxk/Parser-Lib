@@ -65,7 +65,7 @@ public class Example extends YamlConfig {
     private boolean enabled = false;
 
     @Required
-    @Rang(min = 26, max = 64)
+    @Range(min = 26, max = 64)
     private Set<String> something = new ArrayList<>();
     
     @PreserveStatic
