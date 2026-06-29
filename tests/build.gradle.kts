@@ -14,6 +14,7 @@ dependencies {
     testImplementation(project(":hocon", configuration = "shadow"))
     testImplementation(project(":xml", configuration = "shadow"))
     testImplementation(project(":toml", configuration = "shadow"))
+    testImplementation(project(":env", configuration = "shadow"))
 }
 
 tasks.test {
