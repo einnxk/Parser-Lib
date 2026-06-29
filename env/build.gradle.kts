@@ -26,7 +26,7 @@ publishing {
             artifact(tasks["sourcesJar"])
             artifact(tasks["javadocJar"])
 
-            artifactId = "properties"
+            artifactId = "env"
         }
     }
 }

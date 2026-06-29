@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "2.4.0"
+    kotlin("jvm") version "2.3.21"
     id("com.gradleup.shadow") version "9.4.3"
 }
 
@@ -9,6 +9,9 @@ repositories {
 
 dependencies {
     implementation(project(":common"))
+    implementation(rootProject.libs.hocon)
+    implementation(rootProject.libs.hocon.jackson)
+    implementation(rootProject.libs.hocon.jackson.kotlin)
 }
 
 kotlin {
@@ -17,6 +20,9 @@ kotlin {
 
 tasks.shadowJar {
     archiveClassifier.set("")
+
+    relocate("com.fasterxml.jackson", "com.github.einnxk.libs.xml")
+    relocate("com.typesafe.config", "com.github.einnxk.libs.typesafe")
 }
 
 publishing {
@@ -26,7 +32,7 @@ publishing {
             artifact(tasks["sourcesJar"])
             artifact(tasks["javadocJar"])
 
-            artifactId = "properties"
+            artifactId = "hocon"
         }
     }
 }
