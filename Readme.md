@@ -1,9 +1,10 @@
 [![Build](https://img.shields.io/github/actions/workflow/status/einnxk/Parser-Lib/ci.yml?logo=github)](https://github.com/einnxk/Parser-Lib/actions)
 [![GitHub release](https://img.shields.io/github/v/release/einnxk/Parser-Lib?logo=github&color=blue)](https://github.com/einnxk/Parser-Lib/releases)
+[![](https://jitpack.io/v/einnxk/Parser-Lib.svg)](https://jitpack.io/#einnxk/Parser-Lib)
 
 # Parser-Lib
 Parser-Lib is a modern Kotlin/Java library which allows easy parsing of files. The following file types are
-supported: 
+supported:
 
 - `yaml`
 - `json`
@@ -14,13 +15,13 @@ supported:
 - `env`
 
 > [!NOTE]
-> The YAML parser is a hard-fork from [Cube-Space/Yamler](https://github.com/Cube-Space/Yamler) which is rewritten in modern Kotlin 25 with more features. 
+> The YAML parser is a hard-fork from [Cube-Space/Yamler](https://github.com/Cube-Space/Yamler) which is rewritten in modern Kotlin 25 with more features.
 > Special, Thanks! ♥️
 
 ## Developer Quick Start
 
 ### Adding Artifacts  & Repo via. Gradle
-Start by adding the `jitpack` repository to your project with the artifacts you want to use. 
+Start by adding the `jitpack` repository to your project with the artifacts you want to use.
 ```kts
 repositories {
     mavenCentral()
@@ -28,55 +29,63 @@ repositories {
     maven("https://jitpack.io")
 }
 
+repositories {
+    maven("https://jitpack.io")
+}
+
 dependencies {
     // common is required by all modules
-    implementation("com.github.einnxk.parser:common:<version>")
-    /* 
-    Replace <module> with one of the available modules, currently available modules are
-    yamler-core, yamler-paper, json, properties, toml, xml, hocon & env.
-    Replace <version> with the latest version, at the current moment this is 4.0.0-SNAPSHOT
-    */
-    implementation("com.github.einnxk.parser:<module>:<version>")
+    implementation("com.github.einnxk.Parser-Lib:common:<version>")
+
+    // only include the modules you actually want to use
+    implementation("com.github.einnxk.Parser-Lib:json:<version>")
+    implementation("com.github.einnxk.Parser-Lib:yamler-core:<version>")
+    implementation("com.github.einnxk.Parser-Lib:yamler-paper:<version>")
+    implementation("com.github.einnxk.Parser-Lib:properties:<version>")
+    implementation("com.github.einnxk.Parser-Lib:toml:<version>")
+    implementation("com.github.einnxk.Parser-Lib:xml:<version>")
+    implementation("com.github.einnxk.Parser-Lib:hocon:<version>")
+    implementation("com.github.einnxk.Parser-Lib:env:<version>")
 }
 ```
 
 ### Define your Config
-YamlConfig is an example if you want to parse YAML file, but all follow the pattern `<File-Suffix>Config`. 
+YamlConfig is an example if you want to parse YAML file, but all follow the pattern `<File-Suffix>Config`.
 In some Languages doesn't allow `.` these are automatically replaced.
 
-The value you asign in your class is the default value which is created if no file or value is available. 
+The value you asign in your class is the default value which is created if no file or value is available.
 `static`, `final` `transient ` fields are excluded, if you want to parse static files anyways use `@PreserveStatic`.
 ````java
 @Getter
 @Setter
 public class Example extends YamlConfig {
-    
+
     public Example(Path file) {
         this.setConfigFile(file.toFile());
         this.setConfigMode(ConfigMode.DEFAULT);
     }
-    
+
     @Comments({
             "Here you can write very important comments in most of",
             "the languages supported!"
     })
-    
+
     @Path("example.enabled")
     private boolean enabled = false;
 
     @Required
     @Range(min = 26, max = 64)
     private Set<String> something = new ArrayList<>();
-    
+
     @PreserveStatic
     private static String staticExample = "ExampleString";
 }
 ````
 
 ### Init, load, save & reload your file
-These methods are always the same, ignoring the file type you use. 
+These methods are always the same, ignoring the file type you use.
 > [!CAUTION]
-> All parent directories are created automatically 
+> All parent directories are created automatically
 ````java
 Example example = new Example(file);
 // Create the File with default values if not exists, or load from the disk.         
@@ -103,27 +112,27 @@ public class ExampleSection extends ConfigSection {
     private String otherField;
 }
 ````
-Now you can use this section as a filed in your configuration class. 
+Now you can use this section as a filed in your configuration class.
 ````java
 @Getter
 @Setter
 public class Example extends YamlConfig {
-    
+
     public Example(Path file) {
         this.setConfigFile(file.toFile());
         this.setConfigMode(ConfigMode.DEFAULT);
     }
-    
+
     @Path("exmaple.section")
     private ExampleSection section = new ExampleSection("someFiled", "otherField");
 }
 ````
 
-### Create your own Converter 
+### Create your own Converter
 Converters are used to serialize classes that you specially use in your project.
 
-You need to return an `Object` at the method `toConfig(...)` and parse the object you returned back to its original type at the Method `fromConfig(...)`. 
-At the ``supports(...)`` Method you need to describe what your classes your converter can convert. 
+You need to return an `Object` at the method `toConfig(...)` and parse the object you returned back to its original type at the Method `fromConfig(...)`.
+At the ``supports(...)`` Method you need to describe what your classes your converter can convert.
 ````kotlin
 open class BlockConverter(private val internalConverter: InternalConverter) : Converter {
 
@@ -161,23 +170,23 @@ open class BlockConverter(private val internalConverter: InternalConverter) : Co
     }
 }
 ````
-Now you need to register that converter in whatever config class you want to use that type. 
+Now you need to register that converter in whatever config class you want to use that type.
 ```java
 @Getter
 @Setter
 public class Example extends YamlConfig {
-    
+
     public Example(Path file) {
         this.setConfigFile(file.toFile());
         this.setConfigMode(ConfigMode.DEFAULT);
-        
+
         try {
             this.addConverter(BlockConverter.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-    
+
     @Path("exmaple.block")
     private Block block = new Block();
 }
@@ -201,4 +210,3 @@ cd Parser-Lib/
 
 ## License
 Parser-Lib is licensed under the Apache 2 license. Please see the [`LICENSE`](https://github.com/einnxk/parser-lib/blob/master/LICENSE) for more info.
- 
