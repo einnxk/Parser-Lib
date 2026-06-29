@@ -58,17 +58,13 @@ abstract class YamlConfig : ConfigMapper(),
     }
 
     override fun init() {
-        if (configFile == null) {
-            throw IllegalStateException("Config file can not be null")
-        }
+        val file = configFile ?: throw IllegalStateException("Config file cannot be null")
 
-        if (!(configFile!!.exists())) {
-            if (configFile!!.parentFile.exists()) {
-                configFile!!.parentFile.mkdirs()
-            }
+        file.parentFile?.mkdirs()
 
+        if (!file.exists()) {
             try {
-                configFile!!.createNewFile()
+                file.createNewFile()
                 save()
             } catch (e: IOException) {
                 throw RuntimeException(e)

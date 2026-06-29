@@ -76,8 +76,7 @@ public class Example extends YamlConfig {
 ### Init, load, save & reload your file
 These methods are always the same, ignoring the file type you use. 
 > [!CAUTION]
-> The parent directory of the File must exist, the file itself can be created if the parent-directory
-> exists. 
+> All parent directories are created automatically 
 ````java
 Example example = new Example(file);
 // Create the File with default values if not exists, or load from the disk.         
