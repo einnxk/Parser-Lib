@@ -4,9 +4,9 @@ gson = "2.14.0"
 jetbrains = "26.1.0"
 jspecify = "1.0.0"
 toml = "2.22.0"
-xml = "2.21.2"
+xml = "2.22.0"
 hocon = "1.4.9"
-hocon-jackson = "2.21.2"
+hocon-jackson = "2.22.0"
 
 [libraries]
 lombok = {module = "org.projectlombok:lombok", version.ref = "lombok"}
