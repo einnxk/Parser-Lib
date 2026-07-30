@@ -3,10 +3,10 @@ lombok = "1.18.46"
 gson = "2.14.0"
 jetbrains = "26.1.0"
 jspecify = "1.0.1"
-toml = "2.22.0"
-xml = "2.22.0"
+toml = "2.22.1"
+xml = "2.22.1"
 hocon = "1.4.9"
-hocon-jackson = "2.22.0"
+hocon-jackson = "2.22.1"
 
 [libraries]
 lombok = {module = "org.projectlombok:lombok", version.ref = "lombok"}
