@@ -2,7 +2,7 @@
 lombok = "1.18.46"
 gson = "2.14.0"
 jetbrains = "26.1.0"
-jspecify = "1.0.0"
+jspecify = "1.0.1"
 toml = "2.22.0"
 xml = "2.22.0"
 hocon = "1.4.9"
