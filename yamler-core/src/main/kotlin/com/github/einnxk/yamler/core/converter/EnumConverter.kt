@@ -23,7 +23,7 @@ import java.lang.reflect.ParameterizedType
  * @author EinNik
  * @since 4.1.0-SNAPSHOT
  */
-open class EnumConverter : Converter {
+open class EnumConverter(private val internalConverter: InternalConverter) : Converter {
 
     override fun toConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any? {
         if (obj is Enum<*>) {
