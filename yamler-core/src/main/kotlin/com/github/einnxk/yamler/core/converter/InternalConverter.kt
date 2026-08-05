@@ -44,6 +44,7 @@ open class InternalConverter {
             addConverter(MapConverter::class.java)
             addConverter(ListConverter::class.java)
             addConverter(SetConverter::class.java)
+            addConverter(EnumConverter::class.java)
         } catch (e: Exception) {
             throw InvalidConverterException("Failed to init default converters: ", e)
         }

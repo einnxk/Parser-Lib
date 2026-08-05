@@ -1,0 +1,51 @@
+/*
+ * Copyright 2026-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.github.einnxk.yamler.core.converter
+
+import java.lang.reflect.ParameterizedType
+
+/**
+ * Part of the default converter library which automatically converts enums.
+ *
+ * @author EinNik
+ * @since 4.1.0-SNAPSHOT
+ */
+open class EnumConverter(private val internalConverter: InternalConverter) : Converter {
+
+    override fun toConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any? {
+        if (obj is Enum<*>) {
+            return obj.name
+        }
+
+        return obj
+    }
+
+    override fun fromConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any? {
+        if (type != null && type.isEnum && obj != null) {
+            val name = obj.toString()
+            @Suppress("UNCHECKED_CAST")
+            val enumClass = type as Class<out Enum<*>>
+
+            return java.lang.Enum.valueOf(enumClass, name)
+        }
+
+        return obj
+    }
+
+    override fun supports(type: Class<*>): Boolean {
+        return type.isEnum
+    }
+}
