@@ -191,9 +191,7 @@ open class BaseConfigMapper : ConfigBase() {
     }
 
     fun addComment(key: String, value: String) {
-        if (!(comments.contains(key))) {
-            comments[key] = mutableListOf(value)
-        }
+        comments.getOrPut(key) { mutableListOf() }.add(value)
     }
 
     fun clearComments() {
