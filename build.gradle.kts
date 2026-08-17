@@ -51,10 +51,10 @@ subprojects {
     }
 
     dependencies {
-        implementation(rootProject.libs.lombok)
+        compileOnly(rootProject.libs.lombok)
         annotationProcessor(rootProject.libs.lombok)
-        implementation(rootProject.libs.jetbrains)
-        implementation(rootProject.libs.jspecify)
+        compileOnlyApi(rootProject.libs.jetbrains)
+        compileOnlyApi(rootProject.libs.jspecify)
 
         // tests
         testImplementation(platform("org.junit:junit-bom:6.1.2"))
