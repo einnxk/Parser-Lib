@@ -20,7 +20,7 @@ package com.github.einnxk.yamler.core.section
  * YAML file with their key value schema
  *
  * @author EinNik
- * @since 3.0.0-SNAPSHOT
+ * @since 3.0.0
  */
 open class ConfigSection(private val fullPath: String = "") {
 

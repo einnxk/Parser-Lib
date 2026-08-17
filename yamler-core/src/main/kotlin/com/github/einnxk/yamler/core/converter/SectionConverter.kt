@@ -19,17 +19,15 @@ import com.github.einnxk.yamler.core.section.ConfigSection
 import java.lang.reflect.ParameterizedType
 
 /**
- * The SectionConverter is part of the default conversion library. This class
- * makes it able to convert whole ConfigSection's into YAML and back into an ConfigSection.
+ * The SectionConverter is part of the default [Converter] library. This class
+ * makes it able to convert whole [ConfigSection]'s into YAML and back into an [ConfigSection].
  *
  * @author EinNik
- * @since 3.0.10-SNAPSHOT
+ * @since 3.0.10
  */
-open class SectionConverter(private val internalConverter: InternalConverter) : Converter {
+open class SectionConverter(private val internalConverter: InternalConverter) : Converter<Any, Any> {
 
-    override fun toConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any? {
-        if (obj == null) return null
-
+    override fun toConfig(type: Class<*>, obj: Any, parameterizedType: ParameterizedType?): Any {
         val result = LinkedHashMap<Any, Any?>()
         val fields = getAllFields(obj.javaClass)
 
@@ -41,18 +39,17 @@ open class SectionConverter(private val internalConverter: InternalConverter) : 
             field.isAccessible = true
             val value = field.get(obj) ?: continue
 
-            val converter = internalConverter.getConverter(value.javaClass)
+            @Suppress("UNCHECKED_CAST")
+            val converter = internalConverter.getConverter(value.javaClass) as? Converter<Any, Any>
             result[field.name] = converter?.toConfig(value.javaClass, value, null) ?: value
         }
 
         return result
     }
 
-    override fun fromConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any? {
-        if (type == null) return obj
-
+    @Suppress("UNCHECKED_CAST")
+    override fun fromConfig(type: Class<*>, obj: Any, parameterizedType: ParameterizedType?): Any {
         val instance = type.getDeclaredConstructor().newInstance() as ConfigSection
-
         val rawMap: Map<Any, Any?> = when (obj) {
             is ConfigSection -> obj.getRawMap()
             is Map<*, *> -> obj as Map<Any, Any?>
@@ -67,7 +64,7 @@ open class SectionConverter(private val internalConverter: InternalConverter) : 
 
             if (matchingField != null) {
                 matchingField.isAccessible = true
-                val converter = internalConverter.getConverter(matchingField.type)
+                val converter = internalConverter.getConverter(matchingField.type) as? Converter<Any, Any>
                 val converted = converter?.fromConfig(matchingField.type, value, null) ?: value
                 matchingField.set(instance, converted)
             }

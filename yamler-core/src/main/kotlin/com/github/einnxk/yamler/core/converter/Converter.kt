@@ -68,4 +68,15 @@ interface Converter<T, R> {
      */
     @Throws(Exception::class)
     fun fromConfig(type: Class<*>, obj: R, parameterizedType: ParameterizedType?): T
+
+    /**
+     * A simple check that is fired when a converter for a field in the [com.github.einnxk.yamler.core.YamlConfig] is
+     * searched.
+     *
+     * This Check should be made like this `YourClass::class.java.isAssignableFrom(type)`.
+     *
+     * @param type the class we want to check if convertable
+     * @return returns if the class type is convertable
+     */
+    fun supports(type: Class<*>) : Boolean
 }

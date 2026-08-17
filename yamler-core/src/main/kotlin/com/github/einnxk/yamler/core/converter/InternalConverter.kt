@@ -23,8 +23,6 @@ import org.jetbrains.annotations.ApiStatus
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
-import kotlin.reflect.KClass
-import kotlin.reflect.full.isSubclassOf
 
 /**
  * The manager class for [Converter]s which holds the default registered converters from the
@@ -42,7 +40,6 @@ open class InternalConverter {
 
     init {
         try {
-            /*
             addConverter(ConfigConverter::class.java)
             addConverter(SectionConverter::class.java)
             addConverter(ArrayConverter::class.java)
@@ -51,7 +48,6 @@ open class InternalConverter {
             addConverter(ListConverter::class.java)
             addConverter(SetConverter::class.java)
             addConverter(EnumConverter::class.java)
-             */
         } catch (e: Exception) {
             throw InvalidConverterException("Failed to init default converters: ", e)
         }
@@ -88,19 +84,7 @@ open class InternalConverter {
      * @return a converter which a converts [type] or null
      */
     fun getConverter(type: Class<*>): Converter<*, *>? {
-        val inputKClass = type.kotlin
-
-        return converters.firstOrNull { converter ->
-            val converterKClass = converter::class
-            val converterType = converterKClass.supertypes
-                .firstOrNull { it.classifier == Converter::class }
-            val targetClass = converterType?.arguments
-                ?.getOrNull(0)
-                ?.type
-                ?.classifier as? KClass<*>
-
-            targetClass?.let { inputKClass.isSubclassOf(it) } == true
-        }
+        return converters.firstOrNull { it.supports(type) }
     }
 
     @ApiStatus.Internal

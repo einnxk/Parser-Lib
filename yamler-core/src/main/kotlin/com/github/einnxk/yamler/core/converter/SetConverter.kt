@@ -18,15 +18,16 @@ package com.github.einnxk.yamler.core.converter
 import java.lang.reflect.ParameterizedType
 
 /**
- * The MapConverter is part of the default conversion library. This class
+ * The SetConverter is part of the default [Converter] library. This class
  * makes it able to convert a set into YAML and back into a Set.
  *
  * @author EinNik
- * @since 3.0.0-SNAPSHOT
+ * @since 3.0.0
  */
-class SetConverter(private val internalConverter: InternalConverter) : Converter {
+open class SetConverter(private val internalConverter: InternalConverter) : Converter<Any, Any> {
 
-    override fun toConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any? {
+    @Suppress("UNCHECKED_CAST")
+    override fun toConfig(type: Class<*>, obj: Any, parameterizedType: ParameterizedType?): Any {
         val values = obj as Set<*>
         val newList = ArrayList<Any?>()
 
@@ -36,16 +37,10 @@ class SetConverter(private val internalConverter: InternalConverter) : Converter
                 continue
             }
 
-            val converter = internalConverter.getConverter(value.javaClass)
+            val converter = internalConverter.getConverter(value.javaClass) as? Converter<Any, Any>
 
             if (converter != null) {
-                newList.add(
-                    converter.toConfig(
-                        value.javaClass,
-                        value,
-                        null
-                    )
-                )
+                newList.add(converter.toConfig(value.javaClass, value, null))
             } else {
                 newList.add(value)
             }
@@ -54,17 +49,14 @@ class SetConverter(private val internalConverter: InternalConverter) : Converter
         return newList
     }
 
-    override fun fromConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any? {
-        @Suppress("UNCHECKED_CAST")
+    @Suppress("UNCHECKED_CAST")
+    override fun fromConfig(type: Class<*>, obj: Any, parameterizedType: ParameterizedType?): Any {
         val values = obj as List<Any?>
-
         var newSet: MutableSet<Any?> = HashSet()
 
         try {
-            @Suppress("UNCHECKED_CAST")
-            newSet = type?.getDeclaredConstructor()?.newInstance() as MutableSet<Any?>
-        } catch (_: Exception) {
-        }
+            newSet = type.getDeclaredConstructor().newInstance() as MutableSet<Any?>
+        } catch (_: Exception) {}
 
         if (
             parameterizedType != null &&
@@ -72,18 +64,16 @@ class SetConverter(private val internalConverter: InternalConverter) : Converter
         ) {
             val elementType =
                 parameterizedType.actualTypeArguments[0] as Class<*>
-
-            val converter = internalConverter.getConverter(elementType)
+            val converter = internalConverter.getConverter(elementType) as? Converter<Any, Any>
 
             if (converter != null) {
                 for (value in values) {
-                    newSet.add(
-                        converter.fromConfig(
-                            elementType,
-                            value,
-                            null
-                        )
-                    )
+                    if (value == null) {
+                        newSet.add(null)
+                        continue
+                    }
+
+                    newSet.add(converter.fromConfig(elementType, value, null))
                 }
             } else {
                 newSet.addAll(values)

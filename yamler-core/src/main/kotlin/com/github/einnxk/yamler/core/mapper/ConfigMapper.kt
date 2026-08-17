@@ -32,7 +32,7 @@ import java.util.concurrent.ConcurrentHashMap
  * a map into a class.
  *
  * @author EinNik
- * @since 3.0.0-SNAPSHOT
+ * @since 3.0.0
  */
 open class ConfigMapper : BaseConfigMapper() {
 

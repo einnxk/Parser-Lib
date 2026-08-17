@@ -32,7 +32,7 @@ import kotlin.jvm.Throws
  * YamlConfig later - Has this class as a transitive dependency
  *
  * @author EinNik
- * @since 3.0.0-SNAPSHOT
+ * @since 3.0.0
  */
 open class ConfigBase {
 
