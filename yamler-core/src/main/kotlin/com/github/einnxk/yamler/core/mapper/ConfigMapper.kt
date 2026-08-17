@@ -21,6 +21,7 @@ import com.github.einnxk.common.annotations.validate.Required
 import com.github.einnxk.common.enums.ConfigMode
 import com.github.einnxk.yamler.core.YamlConfig
 import com.github.einnxk.common.exception.InvalidConfigurationException
+import com.github.einnxk.yamler.core.converter.Converter
 import com.github.einnxk.yamler.core.section.ConfigSection
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
@@ -70,16 +71,12 @@ open class ConfigMapper : BaseConfigMapper() {
             map[path] = field.get(this)
         }
 
-        val mapConverter = requireNotNull(
-            internalConverter.getConverter(Map::class.java)
-        ) { "No Map converter registered" }
+        @Suppress("UNCHECKED_CAST")
+        val mapConverter = requireNotNull(internalConverter.getConverter(Map::class.java)) {
+            "No Map converter registered" } as Converter<Any, Any>
 
         @Suppress("UNCHECKED_CAST")
-        return mapConverter.toConfig(
-            HashMap::class.java,
-            map,
-            null
-        ) as Map<String, Any>
+        return mapConverter.toConfig(HashMap::class.java, map, null) as Map<String, Any>
     }
 
     @Throws(Exception::class)

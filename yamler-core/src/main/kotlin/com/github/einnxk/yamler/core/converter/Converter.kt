@@ -53,7 +53,7 @@ interface Converter<T, R> {
      * @throws Exception when an error occurs during the insertion into the [com.github.einnxk.yamler.core.YamlConfig]
      */
     @Throws(Exception::class)
-    fun toConfig(type: Class<*>, obj: T, parameterizedType: ParameterizedType): R
+    fun toConfig(type: Class<*>, obj: T, parameterizedType: ParameterizedType?): R
 
     /**
      * This method is called when a field from the [com.github.einnxk.yamler.core.YamlConfig] should parsed. In this method
@@ -67,5 +67,5 @@ interface Converter<T, R> {
      * @throws Exception when an error occurs during the retrieve into the [com.github.einnxk.yamler.core.YamlConfig]
      */
     @Throws(Exception::class)
-    fun fromConfig(type: Class<*>, obj: R, parameterizedType: ParameterizedType): T
+    fun fromConfig(type: Class<*>, obj: R, parameterizedType: ParameterizedType?): T
 }
