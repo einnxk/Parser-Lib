@@ -21,7 +21,6 @@ import com.github.einnxk.common.enums.ConfigMode
 import com.github.einnxk.yamler.core.converter.Converter
 import com.github.einnxk.yamler.core.converter.InternalConverter
 import com.github.einnxk.common.exception.InvalidConverterException
-import org.jetbrains.annotations.NotNull
 import java.io.File
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
@@ -54,7 +53,7 @@ open class ConfigBase {
      *                  file
      */
     @Throws(InvalidConverterException::class)
-    fun addConverter(@NotNull converter: Class<out Converter>) {
+    fun addConverter(converter: Class<out Converter>) {
         internalConverter.addConverter(converter)
     }
 
@@ -66,7 +65,7 @@ open class ConfigBase {
      *
      * @return returns if the field should be skipped
      */
-    fun doSkip(@NotNull field: Field) : Boolean {
+    fun doSkip(field: Field) : Boolean {
         if (Modifier.isTransient(field.modifiers) || Modifier.isFinal(field.modifiers)) {
             return true
         }

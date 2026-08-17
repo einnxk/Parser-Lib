@@ -15,8 +15,6 @@
  */
 package com.github.einnxk.common.annotations
 
-import org.jetbrains.annotations.NotNull
-
 /**
  * An annotations that creates a comment when the file is created
  * or updated.
@@ -26,4 +24,4 @@ import org.jetbrains.annotations.NotNull
  */
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FIELD)
-annotation class Comment(@NotNull val value: String = "")
+annotation class Comment(val value: String = "")

@@ -38,7 +38,6 @@ import java.lang.reflect.Modifier
 abstract class PropertiesConfig : PropertiesConfigMapper(), Config {
 
     private var strictLoad = false
-    protected var initialized = false
 
     override fun save() {
         if (configFile == null) {
