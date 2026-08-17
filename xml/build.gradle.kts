@@ -1,29 +1,14 @@
-plugins {
-    kotlin("jvm") version "2.4.10"
-    id("com.gradleup.shadow") version "9.6.1"
-}
-
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     implementation(project(":common"))
-    implementation(rootProject.libs.xml)
-    implementation(rootProject.libs.xml.kotlin)
-}
 
-kotlin {
-    jvmToolchain(25)
+    implementation(libs.xml)
+    implementation(libs.xml.kotlin)
 }
 
 tasks.shadowJar {
     archiveClassifier.set("")
 
-    relocate(
-        "com.fasterxml.jackson",
-        "com.github.einnxk.libs.xml"
-    )
+    relocate("com.fasterxml.jackson", "com.github.einnxk.libs.xml")
 }
 
 publishing {

@@ -1,29 +1,13 @@
-plugins {
-    kotlin("jvm") version "2.4.10"
-    id("com.gradleup.shadow") version "9.6.1"
-}
-
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     implementation(project(":common"))
 
-    implementation("org.yaml:snakeyaml:2.6")
-}
-
-kotlin {
-    jvmToolchain(25)
+    implementation(libs.snake.yml)
 }
 
 tasks.shadowJar {
     archiveClassifier.set("")
 
-    relocate(
-        "org.yaml.snakeyaml",
-        "com.github.einnxk.libs.snakeyaml"
-    )
+    relocate("org.yaml.snakeyaml", "com.github.einnxk.libs.snakeyaml")
 }
 
 publishing {

@@ -1,28 +1,12 @@
-plugins {
-    kotlin("jvm") version "2.4.10"
-    id("com.gradleup.shadow") version "9.6.1"
-}
-
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     implementation(project(":common"))
-    implementation(rootProject.libs.gson)
-}
-
-kotlin {
-    jvmToolchain(25)
+    implementation(libs.gson)
 }
 
 tasks.shadowJar {
     archiveClassifier.set("")
 
-    relocate(
-        "com.google.gson",
-        "com.github.einnxk.libs.gson"
-    )
+    relocate("com.google.gson", "com.github.einnxk.libs.gson")
 }
 
 publishing {
