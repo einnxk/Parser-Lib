@@ -7,16 +7,20 @@ toml = "2.22.1"
 xml = "2.22.1"
 hocon = "1.4.9"
 hocon-jackson = "2.22.1"
+snakeyml = "2.6"
+papermc = "1.21.11-R0.1-SNAPSHOT"
 
 [libraries]
-lombok = {module = "org.projectlombok:lombok", version.ref = "lombok"}
-gson = {module = "com.google.code.gson:gson", version.ref = "gson"}
-jetbrains = {module = "org.jetbrains:annotations", version.ref = "jetbrains"}
-jspecify = {module = "org.jspecify:jspecify", version.ref = "jspecify"}
-toml = {module = "com.fasterxml.jackson.dataformat:jackson-dataformat-toml", version.ref = "toml"}
-toml-kotlin = {module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "toml"}
-xml = {module = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml", version.ref = "xml"}
-xml-kotlin = {module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "xml"}
-hocon = {module = "com.typesafe:config", version.ref = "hocon"}
-hocon-jackson = {module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "hocon-jackson"}
-hocon-jackson-kotlin = {module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "hocon-jackson"}
+lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+jetbrains = { module = "org.jetbrains:annotations", version.ref = "jetbrains" }
+jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
+toml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-toml", version.ref = "toml" }
+toml-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "toml" }
+xml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml", version.ref = "xml" }
+xml-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "xml" }
+hocon = { module = "com.typesafe:config", version.ref = "hocon" }
+hocon-jackson = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "hocon-jackson" }
+hocon-jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "hocon-jackson" }
+snake-yml = { module = "org.yaml:snakeyaml", version.ref = "snakeyml" }
+paper = { module = "io.papermc.paper:paper-api", version.ref = "papermc" }
