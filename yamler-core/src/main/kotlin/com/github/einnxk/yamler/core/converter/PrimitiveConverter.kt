@@ -18,14 +18,14 @@ package com.github.einnxk.yamler.core.converter
 import java.lang.reflect.ParameterizedType
 
 /**
- * The MapConverter is part of the default conversion library. This class
+ * The PrimitiveConverter is part of the default [Converter] library. This class
  * makes it able to convert primitive datatypes into YAML and back into a primitive
  * datatype.
  *
  * @author EinNik
- * @since 3.0.0-SNAPSHOT
+ * @since 3.0.0
  */
-class PrimitiveConverter(private val internalConverter: InternalConverter) : Converter {
+open class PrimitiveConverter : Converter<Any, Any> {
 
     private val types: Set<String> = setOf(
         "boolean",
@@ -38,11 +38,11 @@ class PrimitiveConverter(private val internalConverter: InternalConverter) : Con
         "double"
     )
 
-    override fun toConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any? {
+    override fun toConfig(type: Class<*>, obj: Any, parameterizedType: ParameterizedType?): Any {
         return obj
     }
 
-    override fun fromConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any? {
+    override fun fromConfig(type: Class<*>, obj: Any, parameterizedType: ParameterizedType?): Any {
         return when (type) {
             java.lang.Short.TYPE -> when (obj) {
                 is Short -> obj

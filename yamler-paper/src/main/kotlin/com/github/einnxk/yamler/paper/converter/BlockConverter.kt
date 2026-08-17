@@ -29,23 +29,24 @@ import java.lang.reflect.ParameterizedType
  * we convert the Block from Bukkit into the Config File and parse one from it.
  *
  * @author EinNik
- * @since 3.0.0-SNAPSHOT
+ * @since 3.0.0
  */
-open class BlockConverter(private val internalConverter: InternalConverter) : Converter {
+open class BlockConverter(private val internalConverter: InternalConverter) : Converter<Block, Any> {
 
-    override fun toConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any {
-        val block: Block = obj as Block
-        val locationConverter: Converter = internalConverter.getConverter(Location::class.java)
-            ?: throw IllegalStateException("Could not find converter for ${obj.javaClass.canonicalName}")
+    override fun toConfig(type: Class<*>, obj: Block, parameterizedType: ParameterizedType?): Any {
+        @Suppress("UNCHECKED_CAST")
+        val locationConverter = internalConverter.getConverter(Location::class.java) as? Converter<Any, Any>
+            ?: throw IllegalStateException("Could not find converter for ${Location::class.java.canonicalName}")
 
         val saveMap: MutableMap<String, Any> = mutableMapOf()
-        saveMap["type"] = block.type
-        saveMap["location"] = locationConverter.toConfig(Location::class.java, block.location, null)!!
+        saveMap["type"] = obj.type
+        saveMap["location"] = locationConverter.toConfig(Location::class.java, obj.location, null)
 
         return saveMap
     }
 
-    override fun fromConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any {
+    @Suppress("UNCHECKED_CAST")
+    override fun fromConfig(type: Class<*>, obj: Any, parameterizedType: ParameterizedType?): Block {
         val blockMap = (obj as ConfigSection).getRawMap() as MutableMap<String?, Any?>
         val locationMap = (blockMap["location"] as ConfigSection).getRawMap() as MutableMap<String?, Any?>
 

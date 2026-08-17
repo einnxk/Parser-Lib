@@ -2,6 +2,7 @@ dependencies {
     implementation(project(":common"))
 
     implementation(libs.snake.yml)
+    implementation(kotlin("reflect"))
 }
 
 tasks.shadowJar {

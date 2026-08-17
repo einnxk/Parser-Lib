@@ -21,6 +21,7 @@ import com.github.einnxk.common.enums.ConfigMode
 import com.github.einnxk.yamler.core.converter.Converter
 import com.github.einnxk.yamler.core.converter.InternalConverter
 import com.github.einnxk.common.exception.InvalidConverterException
+import org.jetbrains.annotations.ApiStatus
 import java.io.File
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
@@ -31,7 +32,7 @@ import kotlin.jvm.Throws
  * YamlConfig later - Has this class as a transitive dependency
  *
  * @author EinNik
- * @since 3.0.0-SNAPSHOT
+ * @since 3.0.0
  */
 open class ConfigBase {
 
@@ -47,24 +48,16 @@ open class ConfigBase {
     protected val internalConverter: InternalConverter = InternalConverter()
 
     /**
-     * Add a custom converter for the parsing of the YAML File
+     * Add a [Converter] for the parsing of the YAML File
      *
-     * @param converter the custom converter we want to add for this YAML
-     *                  file
+     * @param converter the [Converter] we want to add for this YAML file
      */
     @Throws(InvalidConverterException::class)
-    fun addConverter(converter: Class<out Converter>) {
+    fun addConverter(converter: Class<out Converter<*, *>>) {
         internalConverter.addConverter(converter)
     }
 
-    /**
-     * Internal method to check if the field should be skipped, because it is static, final
-     * or the serialize annotation config allows that
-     *
-     * @param field the field we check
-     *
-     * @return returns if the field should be skipped
-     */
+    @ApiStatus.Internal
     fun doSkip(field: Field) : Boolean {
         if (Modifier.isTransient(field.modifiers) || Modifier.isFinal(field.modifiers)) {
             return true
@@ -82,10 +75,8 @@ open class ConfigBase {
         return false
     }
 
-    /**
-     * An internal method that serializes the configurations from the class with are defined
-     * by annotating the class with the SerializeOptions annotation
-     */
+
+    @ApiStatus.Internal
     fun serializeConfigurationFromAnnotation() {
         if (!(javaClass.isAnnotationPresent(SerializeOptions::class.java))) {
             return

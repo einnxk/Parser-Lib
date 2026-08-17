@@ -15,6 +15,8 @@
  */
 package com.github.einnxk.common.annotations.validate
 
+import org.jetbrains.annotations.ApiStatus
+
 /**
  * An annotation marking a field as required with cannot be skipped
  * while parsing the file.
@@ -24,4 +26,6 @@ package com.github.einnxk.common.annotations.validate
  */
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FIELD)
+@Deprecated(message = "Annotation is not needed anymore")
+@ApiStatus.ScheduledForRemoval(inVersion = "5.x.x")
 annotation class Required(val value: Boolean = true)

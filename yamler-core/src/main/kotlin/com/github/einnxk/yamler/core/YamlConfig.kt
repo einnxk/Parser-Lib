@@ -33,7 +33,7 @@ import java.util.*
  * core file methods and get all the mappers as a transitive dependency
  *
  * @author EinNik
- * @since 3.0.0-SNAPSHOT
+ * @since 3.0.0
  */
 abstract class YamlConfig : ConfigMapper(),
     Config {
