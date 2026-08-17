@@ -16,7 +16,6 @@
 package com.github.einnxk.yamler.paper.converter
 
 import com.github.einnxk.yamler.core.converter.Converter
-import com.github.einnxk.yamler.core.converter.InternalConverter
 import com.github.einnxk.yamler.core.section.ConfigSection
 import org.bukkit.Bukkit
 import org.bukkit.Location
@@ -27,24 +26,24 @@ import java.lang.reflect.ParameterizedType
  * we convert the Location from Bukkit into the Config File and parse one from it.
  *
  * @author EinNik
- * @since 3.0.0-SNAPSHOT
+ * @since 3.0.0
  */
-open class LocationConverter(private val internalConverter: InternalConverter) : Converter {
+open class LocationConverter : Converter<Location, Any> {
 
-    override fun toConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any? {
-        val location = obj as Location
+    override fun toConfig(type: Class<*>, obj: Location, parameterizedType: ParameterizedType?): Any {
         val saveMap: MutableMap<String?, Any?> = HashMap()
-        saveMap["world"] = location.getWorld().name
-        saveMap["x"] = location.x
-        saveMap["y"] = location.y
-        saveMap["z"] = location.z
-        saveMap["yaw"] = location.yaw
-        saveMap["pitch"] = location.pitch
+        saveMap["world"] = obj.getWorld().name
+        saveMap["x"] = obj.x
+        saveMap["y"] = obj.y
+        saveMap["z"] = obj.z
+        saveMap["yaw"] = obj.yaw
+        saveMap["pitch"] = obj.pitch
 
         return saveMap
     }
 
-    override fun fromConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any? {
+    @Suppress("UNCHECKED_CAST")
+    override fun fromConfig(type: Class<*>, obj: Any, parameterizedType: ParameterizedType?): Location {
         val locationMap: MutableMap<String?, Any?>?
         if (obj is MutableMap<*, *>) {
             locationMap = obj as MutableMap<String?, Any?>?

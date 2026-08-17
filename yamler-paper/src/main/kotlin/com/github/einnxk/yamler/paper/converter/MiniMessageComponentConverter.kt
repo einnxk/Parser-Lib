@@ -31,15 +31,14 @@ import kotlin.collections.get
  * and parse one from it.
  *
  * @author EinNik
- * @since 3.0.0-SNAPSHOT
+ * @since 3.0.0
  */
-@ApiStatus.Experimental
-open class MiniMessageComponentConverter(private val internalConverter: InternalConverter) : Converter {
+open class MiniMessageComponentConverter : Converter<Component, Map<*, *>> {
 
-    override fun toConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any {
+    override fun toConfig(type: Class<*>, obj: Component, parameterizedType: ParameterizedType?): Map<*, *> {
         val component: Component = obj as Component
 
-        val saveMap: MutableMap<String, Any?> = mutableMapOf()
+        val saveMap: MutableMap<String, Any> = mutableMapOf()
         saveMap["text-decoration"] =
             component.decorations().mapKeys { it.key.name }
                 .mapValues { it.value.name }
@@ -49,13 +48,9 @@ open class MiniMessageComponentConverter(private val internalConverter: Internal
         return saveMap
     }
 
-    override fun fromConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any {
+    override fun fromConfig(type: Class<*>, obj: Map<*, *>, parameterizedType: ParameterizedType?): Component {
         val map: Map<*, *> = when (obj) {
-            is Map<*, *> -> obj
-            is ConfigSection -> obj.getRawMap()
-            else -> throw IllegalStateException(
-                "Expected Map or ConfigSection, got ${obj?.javaClass?.name}"
-            )
+            else -> obj
         }
 
         val content = map["content"] as? String
