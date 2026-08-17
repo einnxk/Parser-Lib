@@ -16,7 +16,6 @@
 package com.github.einnxk.common.interfaces
 
 import com.github.einnxk.common.exception.InvalidConfigurationException
-import org.jetbrains.annotations.NotNull
 import java.io.File
 
 /**
@@ -41,7 +40,7 @@ interface Config {
      * @param file the specified file which the class is saved in
      */
     @Throws(InvalidConfigurationException::class)
-    fun save(@NotNull file: File)
+    fun save(file: File)
 
     /**
      * Create or load the file on disk overriding the variable in
@@ -58,7 +57,7 @@ interface Config {
      *             from
      */
     @Throws(InvalidConfigurationException::class)
-    fun init(@NotNull file: File)
+    fun init(file: File)
 
     /**
      * Reload the file from the disk and re set the variables in the class
@@ -78,5 +77,5 @@ interface Config {
      * class
      */
     @Throws(InvalidConfigurationException::class)
-    fun load(@NotNull file: File)
+    fun load(file: File)
 }

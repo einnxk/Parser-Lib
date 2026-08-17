@@ -38,17 +38,7 @@ open class PropertiesConfigMapper : BaseConfigMapper() {
     @Transient
     protected val internalConverter = PropertiesInternalConverter()
 
-    @Throws(Exception::class)
-    fun saveToProperties(clazz: Class<Any>) {
-        val props = this.properties
-
-        writeClassToProperties(this, clazz, props)
-
-        saveToProperties()
-    }
-
     private fun writeClassToProperties(instance: Any, clazz: Class<*>, props: Properties) {
-
         if (clazz.superclass != null &&
             clazz.superclass != PropertiesConfig::class.java
         ) {
@@ -73,16 +63,7 @@ open class PropertiesConfigMapper : BaseConfigMapper() {
         }
     }
 
-    @Throws(Exception::class)
-    fun loadFromProperties(clazz: Class<Any>) {
-        loadFromProperties()
-        val props = this.properties
-
-        readClassFromProperties(this, clazz, props)
-    }
-
     private fun readClassFromProperties(instance: Any, clazz: Class<*>, props: Properties) {
-
         if (clazz.superclass != null &&
             clazz.superclass != PropertiesConfig::class.java
         ) {

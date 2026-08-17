@@ -18,7 +18,6 @@ package com.github.einnxk.xml
 import com.github.einnxk.common.exception.InvalidConfigurationException
 import com.github.einnxk.common.interfaces.Config
 import com.github.einnxk.xml.mapper.XmlMapper
-import org.jetbrains.annotations.NotNull
 import java.io.File
 
 /**
@@ -44,7 +43,7 @@ abstract class XmlConfig : XmlMapper(), Config {
     }
 
     @Throws(InvalidConfigurationException::class)
-    override fun save(@NotNull file: File) {
+    override fun save(file: File) {
         configFile = file
         save()
     }
@@ -61,7 +60,7 @@ abstract class XmlConfig : XmlMapper(), Config {
     }
 
     @Throws(InvalidConfigurationException::class)
-    override fun init(@NotNull file: File) {
+    override fun init(file: File) {
         configFile = file
         init()
     }
@@ -85,7 +84,7 @@ abstract class XmlConfig : XmlMapper(), Config {
     }
 
     @Throws(InvalidConfigurationException::class)
-    override fun load(@NotNull file: File) {
+    override fun load(file: File) {
         configFile = file
         load()
     }
