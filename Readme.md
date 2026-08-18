@@ -1,10 +1,10 @@
 [![Build](https://img.shields.io/github/actions/workflow/status/einnxk/Parser-Lib/ci.yml?logo=github)](https://github.com/einnxk/Parser-Lib/actions)
 [![GitHub release](https://img.shields.io/github/v/release/einnxk/Parser-Lib?logo=github&color=blue)](https://github.com/einnxk/Parser-Lib/releases)
-[![](https://jitpack.io/v/einnxk/Parser-Lib.svg)](https://jitpack.io/#einnxk/Parser-Lib)
+[![JitPack](https://jitpack.io/v/einnxk/Parser-Lib.svg)](https://jitpack.io/#einnxk/Parser-Lib)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
 # Parser-Lib
-Parser-Lib is a modern Kotlin/Java library which allows easy parsing of files. The following file types are
-supported:
+**Parser-Lib** is a modern, lightweight Kotlin and Java library designed for effortless file parsing and configuration management. Write your configuration logic once and easily switch between multiple file formats without changing your application code. The following file types are supported: 
 
 - `yaml`
 - `json`
@@ -14,51 +14,35 @@ supported:
 - `hocon`
 - `env`
 
-> [!NOTE]
-> The YAML parser is a hard-fork from [Cube-Space/Yamler](https://github.com/Cube-Space/Yamler) which is rewritten in modern Kotlin 25 with more features.
-> Special, Thanks! ♥️
+### It is: 
+- **Annotation Driven** - A modern, mostly annotation driven library 
+- **Extensible** - Easily implement `Converters` for nested classes yourself
+- **Unified for multiple file types** - Easily switch between file types 
+- **Native Minecraft support** - The optional paper module provides parsers, for `Locations, Blocks, Components & ItemStacks`
+- **Free & Open Source** - Free and open source forever
 
-## Developer Quick Start
-
-### Adding Artifacts  & Repo via. Gradle
-Start by adding the `jitpack` repository to your project with the artifacts you want to use.
+## 📦 Installation & Dependency Setup
+Add the JitPack repository and the specific modules you need to your `build.gradle.kts`:
 ```kts
-repositories {
-    mavenCentral()
-    mavenLocal()
-    maven("https://jitpack.io")
-}
-
 repositories {
     maven("https://jitpack.io")
 }
 
 dependencies {
-    // common is required by all modules
-    implementation("com.github.einnxk.Parser-Lib:common:<version>")
-
-    // only include the modules you actually want to use
-    implementation("com.github.einnxk.Parser-Lib:json:<version>")
-    implementation("com.github.einnxk.Parser-Lib:yamler-core:<version>")
-    implementation("com.github.einnxk.Parser-Lib:yamler-paper:<version>")
-    implementation("com.github.einnxk.Parser-Lib:properties:<version>")
-    implementation("com.github.einnxk.Parser-Lib:toml:<version>")
-    implementation("com.github.einnxk.Parser-Lib:xml:<version>")
-    implementation("com.github.einnxk.Parser-Lib:hocon:<version>")
-    implementation("com.github.einnxk.Parser-Lib:env:<version>")
+    // replace the module with the one you need
+    implementation("com.github.einnxk.parser-lib:yamler-core:4.2.0")
 }
 ```
 
-### Define your Config
-YamlConfig is an example if you want to parse YAML file, but all follow the pattern `<File-Suffix>Config`.
-In some Languages doesn't allow `.` these are automatically replaced.
+## ⚡ Quick Start Guide
+### 1. Define your configuration class
+All configuration classes extend `<Format>Config` (e.g., YamlConfig, JsonConfig, TomlConfig). Fields are automatically assigned default values if the configuration file or value does not exist.
 
-The value you asign in your class is the default value which is created if no file or value is available.
-`static`, `final` `transient ` fields are excluded, if you want to parse static files anyways use `@PreserveStatic`.
+`static, final, and transient` fields are excluded by default. Use `@PreserveStatic` if you wish to parse static fields.
 ````java
 @Getter
 @Setter
-public class Example extends YamlConfig {
+public final class Example extends YamlConfig {
 
     public Example(Path file) {
         this.setConfigFile(file.toFile());
@@ -73,126 +57,151 @@ public class Example extends YamlConfig {
     @Path("example.enabled")
     private boolean enabled = false;
 
-    @Required
     @Range(min = 26, max = 64)
-    private Set<String> something = new ArrayList<>();
+    private Set<String> something = new HashSet<>();
+
+    @EnvironmentOverride(name = "REDIS_HOST", throwIfWrongType = true, throwIfNull = true)
+    private String datasourcePassword = "password";
 
     @PreserveStatic
     private static String staticExample = "ExampleString";
 }
 ````
 
-### Init, load, save & reload your file
-These methods are always the same, ignoring the file type you use.
-> [!CAUTION]
-> All parent directories are created automatically
+### 2. Init, load, save & reload your file
+Managing configuration lifecycle is consistent across all file formats:
 ````java
-Example example = new Example(file);
-// Create the File with default values if not exists, or load from the disk.         
+ExampleConfig example = new ExampleConfig(filePath);
+
+// Create the file with default values if missing, or load it from disk
 example.init();
-// load the file without creating it, if it doesn't exist
+
+// Load the file without creating it if missing
 example.load();
-// reload the file from the disk - Fields modified at the runtime in the class are dumped
+
+// Reload values from disk (overwrites runtime modifications in memory)
 example.reload();
-// save the file with the field values from the class on the disk
+
+// Save field values from memory back to disk
 example.save();
 ````
 
-### Create your own Sections
-Sections are used to define a collection of fields that are highlighted. Some file types makes this automatically,
-like the JSON Parser.
+### 3. Create your own Sections
+Sections define collections of fields grouped under a common path.
+> [!CAUTION]
+> Sections do not replace converters, nested custom classes still need a Converter registered in the Config parent class. 
 ````java
-
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstrcutor
-public class ExampleSection extends ConfigSection {
+@AllArgsConstructor
+public final class ExampleSection extends ConfigSection {
     private String someField;
     private String otherField;
 }
 ````
-Now you can use this section as a filed in your configuration class.
+
+Usage within your main configuration class:
 ````java
 @Getter
 @Setter
-public class Example extends YamlConfig {
+public final class ExampleConfig extends YamlConfig {
 
-    public Example(Path file) {
+    public ExampleConfig(Path file) {
         this.setConfigFile(file.toFile());
         this.setConfigMode(ConfigMode.DEFAULT);
     }
 
-    @Path("exmaple.section")
-    private ExampleSection section = new ExampleSection("someFiled", "otherField");
+    @Path("example.section")
+    private ExampleSection section = new ExampleSection("someField", "otherField");
 }
 ````
 
-### Create your own Converter
-Converters are used to serialize classes that you specially use in your project.
+### 4. Create your own Converter
+Converters serialize custom or third-party classes (like Bukkit's `Block` or `Location`). With the statically typed `Converter<T, R>` interface, `T` represents your custom target type and `R` represents the serialized configuration output (usually `Object` or `Map`).
 
-You need to return an `Object` at the method `toConfig(...)` and parse the object you returned back to its original type at the Method `fromConfig(...)`.
-At the ``supports(...)`` Method you need to describe what your classes your converter can convert.
-````kotlin
-open class BlockConverter(private val internalConverter: InternalConverter) : Converter {
+Implement the `Converter<T, R>` interface:
+* `toConfig(Class<?>, T obj, ParameterizedType)`: Converts your strongly-typed object `obj` into a serializable structure.
+* `fromConfig(Class<?>, R obj, ParameterizedType)`: Deserializes the configuration data back into your typed object `T`.
+* `supports(Class<?>)`: Specifies which classes this converter can handle.
+```java
+public class BlockConverter implements Converter<Block, Object> {
 
-    override fun toConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any {
-        val block: Block = obj as Block
-        val locationConverter: Converter = internalConverter.getConverter(Location::class.java)
-            ?: throw IllegalStateException("Could not find converter for ${obj.javaClass.canonicalName}")
+    private final InternalConverter internalConverter;
 
-        val saveMap: MutableMap<String, Any> = mutableMapOf()
-        saveMap["type"] = block.type
-        saveMap["location"] = locationConverter.toConfig(Location::class.java, block.location, null)!!
-
-        return saveMap
+    // this constructor is optional
+    // no args constructors are also supported
+    public BlockConverter(InternalConverter internalConverter) {
+        this.internalConverter = internalConverter;
     }
 
-    override fun fromConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any {
-        val blockMap = (obj as ConfigSection).getRawMap() as MutableMap<String?, Any?>
-        val locationMap = (blockMap["location"] as ConfigSection).getRawMap() as MutableMap<String?, Any?>
+    @Override
+    @SuppressWarnings("unchecked")
+    public Object toConfig(Class<?> type, Block obj, ParameterizedType parameterizedType) {
+        Converter<Object, Object> locationConverter = (Converter<Object, Object>) internalConverter.getConverter(Location.class);
+        if (locationConverter == null) {
+            throw new IllegalStateException("Could not find converter for " + Location.class.getCanonicalName());
+        }
 
-        val location = Location(
-            Bukkit.getWorld(locationMap["world"] as String),
-            locationMap["x"] as Double,
-            locationMap["y"] as Double,
-            locationMap["z"] as Double
-        )
-        val block = location.block
+        Map<String, Object> saveMap = new HashMap<>();
+        saveMap.put("type", obj.getType());
+        saveMap.put("location", locationConverter.toConfig(Location.class, obj.getLocation(), null));
 
-        block.type = blockMap["type"] as Material
-
-        return block
+        return saveMap;
     }
 
-    override fun supports(type: Class<*>): Boolean {
-        return Block::class.java.isAssignableFrom(type)
+    @Override
+    @SuppressWarnings("unchecked")
+    public Block fromConfig(Class<?> type, Object obj, ParameterizedType parameterizedType) {
+        ConfigSection section = (ConfigSection) obj;
+        Map<String, Object> blockMap = (Map<String, Object>) section.getRawMap();
+
+        ConfigSection locationSection = (ConfigSection) blockMap.get("location");
+        Map<String, Object> locationMap = (Map<String, Object>) locationSection.getRawMap();
+
+        Location location = new Location(
+            Bukkit.getWorld((String) locationMap.get("world")),
+            (Double) locationMap.get("x"),
+            (Double) locationMap.get("y"),
+            (Double) locationMap.get("z")
+        );
+
+        Block block = location.getBlock();
+        block.setType((Material) blockMap.get("type"));
+
+        return block;
+    }
+
+    @Override
+    public boolean supports(Class<?> type) {
+        return Block.class.isAssignableFrom(type);
     }
 }
-````
-Now you need to register that converter in whatever config class you want to use that type.
+```
+
+Register the converter inside your config constructor:
 ```java
 @Getter
 @Setter
-public class Example extends YamlConfig {
+public final class ExampleConfig extends YamlConfig {
 
-    public Example(Path file) {
+    public ExampleConfig(Path file) {
         this.setConfigFile(file.toFile());
         this.setConfigMode(ConfigMode.DEFAULT);
 
         try {
             this.addConverter(BlockConverter.class);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to register BlockConverter", e);
         }
     }
 
-    @Path("exmaple.block")
+    @Path("example.block")
     private Block block = new Block();
 }
 ```
 
-## Build
+## ⚙️ Build
 
 Parser-Lib uses Gradle to handle dependencies & building. <br />
 
@@ -208,5 +217,8 @@ cd Parser-Lib/
 ./gradlew clean build
 ```
 
-## License
+## 📄 License
 Parser-Lib is licensed under the Apache 2 license. Please see the [`LICENSE`](https://github.com/einnxk/parser-lib/blob/master/LICENSE) for more info.
+
+> [!NOTE]
+> Special Thanks: The YAML parser is a hard-fork derived from [Cube-Space/Yamler](https://github.com/Cube-Space/Yamler), rewritten and modernized in Kotlin with enhanced feature support. ♥️
