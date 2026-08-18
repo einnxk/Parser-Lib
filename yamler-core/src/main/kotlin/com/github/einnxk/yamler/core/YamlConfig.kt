@@ -33,7 +33,7 @@ import java.util.*
  * core file methods and get all the mappers as a transitive dependency
  *
  * @author EinNik
- * @since 3.0.0-SNAPSHOT
+ * @since 3.0.0
  */
 abstract class YamlConfig : ConfigMapper(),
     Config {
@@ -193,7 +193,6 @@ abstract class YamlConfig : ConfigMapper(),
                 try {
                     internalConverter.fromConfig(this, field, root!!, path)
                     validateRange(field)
-                    validRequired(field)
                 } catch (e: InvalidConfigurationException) {
                     throw e
                 } catch (e: java.lang.Exception) {
@@ -204,7 +203,6 @@ abstract class YamlConfig : ConfigMapper(),
                     internalConverter.toConfig(this, field, root!!, path)
                     internalConverter.fromConfig(this, field, root!!, path)
                     validateRange(field)
-                    validRequired(field)
                     save = true
                 } catch (e: InvalidConfigurationException) {
                     throw e

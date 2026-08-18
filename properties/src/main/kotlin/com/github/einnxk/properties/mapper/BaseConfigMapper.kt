@@ -96,8 +96,4 @@ open class BaseConfigMapper : ConfigBase() {
         }
         list.add(comment)
     }
-
-    protected fun clearComments() {
-        comments.clear()
-    }
 }

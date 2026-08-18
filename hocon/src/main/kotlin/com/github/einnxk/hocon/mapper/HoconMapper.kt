@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.github.einnxk.common.annotations.Path
 import com.github.einnxk.common.annotations.validate.Range
-import com.github.einnxk.common.annotations.validate.Required
 import com.github.einnxk.common.enums.ConfigMode
 import com.github.einnxk.common.exception.InvalidConfigurationException
 import com.github.einnxk.hocon.HoconConfig
@@ -82,15 +81,6 @@ open class HoconMapper : BaseHoconMapper() {
             val element: JsonNode? = getNestedValue(node, path)
 
             if (element == null || element.isNull || element.isMissingNode) {
-                if (strictLoad) {
-                    val required = field.getAnnotation(Required::class.java)
-                    if (required != null && required.value) {
-                        throw InvalidConfigurationException(
-                            "Required field '${field.name}' is missing in HOCON"
-                        )
-                    }
-                }
-
                 val defaultValue = field.get(this)
                 if (defaultValue != null) {
                     setNestedValue(node, path, objectMapper.valueToTree(defaultValue))
@@ -103,7 +93,6 @@ open class HoconMapper : BaseHoconMapper() {
             field.set(this, objectMapper.convertValue(element, field.type))
 
             validateRange(field)
-            if (strictLoad) validRequired(field)
         }
 
         if (needsSave) {
@@ -148,17 +137,6 @@ open class HoconMapper : BaseHoconMapper() {
             ConfigMode.FIELD_IS_KEY -> field.name
             ConfigMode.DEFAULT -> field.name.replace("_", ".")
         }
-    }
-
-    @Throws(InvalidConfigurationException::class)
-    internal fun validRequired(field: Field) {
-        field.isAccessible = true
-        if (!field.isAnnotationPresent(Required::class.java)) return
-        val required = field.getAnnotation(Required::class.java).value
-        if (!required) return
-        field.get(this) ?: throw InvalidConfigurationException(
-            "A field annotated with @Required is null: ${field.name}"
-        )
     }
 
     @Throws(InvalidConfigurationException::class)

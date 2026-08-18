@@ -18,36 +18,38 @@ package com.github.einnxk.yamler.core.converter
 import java.lang.reflect.ParameterizedType
 
 /**
- * The MapConverter is part of the default conversion library. This class
+ * The ArrayConverter is part of the default [Converter] library. This class
  * makes it able to convert arrays into YAML and back into an Array.
  *
  * @author EinNik
- * @since 3.0.0-SNAPSHOT
+ * @since 3.0.0
  */
-class ArrayConverter(private val internalConverter: InternalConverter) : Converter {
+open class ArrayConverter(private val internalConverter: InternalConverter) : Converter<Any, Any> {
 
-    override fun toConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any? {
-        val singleType = type?.componentType ?: return obj
+    override fun toConfig(type: Class<*>, obj: Any, parameterizedType: ParameterizedType?): Any {
+        val singleType = type.componentType ?: return obj
 
-        val converter = internalConverter.getConverter(singleType)
+        @Suppress("UNCHECKED_CAST")
+        val converter = internalConverter.getConverter(singleType) as? Converter<Any, Any>
             ?: return obj
 
         val length = java.lang.reflect.Array.getLength(obj)
         val result = arrayOfNulls<Any?>(length)
 
         for (i in 0 until length) {
-            result[i] = converter.toConfig(
-                singleType,
-                java.lang.reflect.Array.get(obj, i),
-                parameterizedType
-            )
+            val element = java.lang.reflect.Array.get(obj, i)
+            result[i] = if (element != null) {
+                converter.toConfig(singleType, element, parameterizedType)
+            } else {
+                null
+            }
         }
 
         return result
     }
 
-    override fun fromConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any? {
-        val singleType = type?.componentType ?: return obj
+    override fun fromConfig(type: Class<*>, obj: Any, parameterizedType: ParameterizedType?): Any {
+        val singleType = type.componentType ?: return obj
 
         val values: List<Any?> =
             obj as? List<*> ?: (obj as Array<*>).toList()
@@ -57,18 +59,18 @@ class ArrayConverter(private val internalConverter: InternalConverter) : Convert
             values.size
         )
 
-        val converter = internalConverter.getConverter(singleType) ?: return values.toTypedArray()
+        @Suppress("UNCHECKED_CAST")
+        val converter = internalConverter.getConverter(singleType) as? Converter<Any, Any>
+            ?: return values.toTypedArray()
 
         for (i in values.indices) {
-            java.lang.reflect.Array.set(
-                result,
-                i,
-                converter.fromConfig(
-                    singleType,
-                    values[i],
-                    parameterizedType
-                )
-            )
+            val value = values[i]
+            val converted = if (value != null) {
+                converter.fromConfig(singleType, value, parameterizedType)
+            } else {
+                null
+            }
+            java.lang.reflect.Array.set(result, i, converted)
         }
 
         return result

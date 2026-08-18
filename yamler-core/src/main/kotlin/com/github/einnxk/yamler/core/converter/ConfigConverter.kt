@@ -19,30 +19,16 @@ import com.github.einnxk.yamler.core.YamlConfig
 import com.github.einnxk.yamler.core.section.ConfigSection
 import java.lang.reflect.ParameterizedType
 
-class ConfigConverter(private val internalConverter: InternalConverter) : Converter {
-
-    override fun toConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any {
-        return obj as? Map<*, *> ?: (obj as YamlConfig).saveToMap(obj.javaClass)
-    }
-
-    override fun fromConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any {
-        val clazz = type ?: error("type is null")
-        val yamlConfig = newInstance(clazz) as YamlConfig
-
-        for (converterClass in internalConverter.customConverters()) {
-            internalConverter.addConverter(converterClass)
-        }
-
-        val map: Map<Any, Any> = if (obj is Map<*, *>) {
-            obj as Map<Any, Any>
-        } else {
-            (obj as ConfigSection).getRawMap() as Map<Any, Any>
-        }
-
-        yamlConfig.loadMap(map, clazz as Class<Any>)
-
-        return yamlConfig
-    }
+/**
+ * Part of the default yamler [Converter] library. Which automatically converts The config into a
+ * map and the map back into YAML.
+ *
+ * @author EinNik
+ * @since 4.2.0
+ *
+ * @see Converter
+ */
+open class ConfigConverter : Converter<Any, Any> {
 
     fun newInstance(type: Class<*>): Any {
         val enclosingClass = type.enclosingClass
@@ -56,6 +42,25 @@ class ConfigConverter(private val internalConverter: InternalConverter) : Conver
             type.getDeclaredConstructor()
                 .newInstance()
         }
+    }
+
+    override fun toConfig(type: Class<*>, obj: Any, parameterizedType: ParameterizedType?): Any {
+        return obj as? Map<*, *> ?: (obj as YamlConfig).saveToMap(obj.javaClass)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun fromConfig(type: Class<*>, obj: Any, parameterizedType: ParameterizedType?): Any {
+        val yamlConfig = newInstance(type) as YamlConfig
+
+        val map: Map<Any, Any> = if (obj is Map<*, *>) {
+            obj as Map<Any, Any>
+        } else {
+            (obj as ConfigSection).getRawMap() as Map<Any, Any>
+        }
+
+        yamlConfig.loadMap(map, type as Class<Any>)
+
+        return yamlConfig
     }
 
     override fun supports(type: Class<*>): Boolean {

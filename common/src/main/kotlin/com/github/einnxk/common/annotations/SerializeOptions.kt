@@ -23,7 +23,7 @@ import com.github.einnxk.common.enums.ConfigMode
  * of the file, if the failed parsing of objects should be skipped.
  *
  * @author EinNik
- * @since 4.0.0-SNAPSHOT
+ * @since 4.0.0
  */
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.CLASS)

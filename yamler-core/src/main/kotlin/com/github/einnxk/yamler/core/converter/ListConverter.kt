@@ -18,15 +18,15 @@ package com.github.einnxk.yamler.core.converter
 import java.lang.reflect.ParameterizedType
 
 /**
- * The MapConverter is part of the default conversion library. This class
+ * The ListConverter is part of the default [Converter] library. This class
  * makes it able to convert a list into YAML and back into a List.
  *
  * @author EinNik
- * @since 3.0.0-SNAPSHOT
+ * @since 3.0.0
  */
-class ListConverter(private val internalConverter: InternalConverter) : Converter {
+open class ListConverter(private val internalConverter: InternalConverter) : Converter<Any, Any> {
 
-    override fun toConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any? {
+    override fun toConfig(type: Class<*>, obj: Any, parameterizedType: ParameterizedType?): Any {
         val values = obj as MutableList<*>
         val newList = ArrayList<Any?>()
 
@@ -36,16 +36,11 @@ class ListConverter(private val internalConverter: InternalConverter) : Converte
                 continue
             }
 
-            val converter = internalConverter.getConverter(value.javaClass)
+            @Suppress("UNCHECKED_CAST")
+            val converter = internalConverter.getConverter(value.javaClass) as? Converter<Any, Any>
 
             if (converter != null) {
-                newList.add(
-                    converter.toConfig(
-                        value.javaClass,
-                        value,
-                        null
-                    )
-                )
+                newList.add(converter.toConfig(value.javaClass, value, null))
             } else {
                 newList.add(value)
             }
@@ -54,16 +49,14 @@ class ListConverter(private val internalConverter: InternalConverter) : Converte
         return newList
     }
 
-    override fun fromConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any? {
+    @Suppress("UNCHECKED_CAST")
+    override fun fromConfig(type: Class<*>, obj: Any, parameterizedType: ParameterizedType?): Any {
         var newList: MutableList<Any?> = ArrayList()
 
         try {
-            @Suppress("UNCHECKED_CAST")
-            newList = type?.getDeclaredConstructor()?.newInstance() as MutableList<Any?>
-        } catch (_: Exception) {
-        }
+            newList = type.getDeclaredConstructor().newInstance() as MutableList<Any?>
+        } catch (_: Exception) {}
 
-        @Suppress("UNCHECKED_CAST")
         val values = obj as MutableList<Any?>
 
         if (
@@ -73,17 +66,15 @@ class ListConverter(private val internalConverter: InternalConverter) : Converte
             val elementType =
                 parameterizedType.actualTypeArguments[0] as Class<*>
 
-            val converter = internalConverter.getConverter(elementType)
+            val converter = internalConverter.getConverter(elementType) as? Converter<Any, Any>
 
             if (converter != null) {
                 for (value in values) {
-                    newList.add(
-                        converter.fromConfig(
-                            elementType,
-                            value,
-                            null
-                        )
-                    )
+                    if (value == null) {
+                        newList.add(null)
+                        continue
+                    }
+                    newList.add(converter.fromConfig(elementType, value, null))
                 }
             } else {
                 newList = values

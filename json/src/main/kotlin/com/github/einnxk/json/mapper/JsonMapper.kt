@@ -17,7 +17,6 @@ package com.github.einnxk.json.mapper
 
 import com.github.einnxk.common.annotations.*
 import com.github.einnxk.common.annotations.validate.Range
-import com.github.einnxk.common.annotations.validate.Required
 import com.github.einnxk.common.enums.ConfigMode
 import com.github.einnxk.common.exception.InvalidConfigurationException
 import com.github.einnxk.json.JsonConfig
@@ -83,14 +82,12 @@ open class JsonMapper : BaseJsonMapper() {
             val element: JsonElement? = getNestedValue(jsonObject, path)
 
             if (element == null || element.isJsonNull) {
-                validRequired(field)
                 continue
             }
 
             field.set(this, gson.fromJson(element, field.genericType))
 
             validateRange(field)
-            validRequired(field)
         }
     }
 
@@ -131,20 +128,6 @@ open class JsonMapper : BaseJsonMapper() {
             ConfigMode.FIELD_IS_KEY -> field.name
             ConfigMode.DEFAULT -> field.name.replace("_", ".")
         }
-    }
-
-    @Throws(InvalidConfigurationException::class)
-    private fun validRequired(field: Field) {
-        field.isAccessible = true
-
-        if (!field.isAnnotationPresent(Required::class.java)) return
-
-        val required = field.getAnnotation(Required::class.java).value
-        if (!required) return
-
-        field.get(this) ?: throw InvalidConfigurationException(
-            "A field annotated with @Required is null: ${field.name}"
-        )
     }
 
     @Throws(InvalidConfigurationException::class)

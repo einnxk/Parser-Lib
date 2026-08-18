@@ -1,8 +1,10 @@
 plugins {
-    java
-    `maven-publish`
-    id("com.gradleup.shadow") version "9.6.1" apply false
+    id("java")
+    id("java-library")
+    id("maven-publish")
+    id("com.gradleup.shadow") version "9.6.1"
     id("com.diffplug.spotless") version "8.9.0"
+    kotlin("jvm") version "2.4.10"
 }
 
 tasks.withType<Test> {
@@ -11,32 +13,31 @@ tasks.withType<Test> {
 
 allprojects {
     group = "com.github.einnxk.parser"
-    version = "4.1.0-SNAPSHOT"
-
-    repositories {
-        mavenCentral()
-    }
+    version = "4.1.2-SNAPSHOT"
 }
 
 subprojects {
     apply(plugin = "java")
+    apply(plugin = "java-library")
     apply(plugin = "maven-publish")
+    apply(plugin = "com.gradleup.shadow")
     apply(plugin = "com.diffplug.spotless")
+    apply(plugin = "org.jetbrains.kotlin.jvm")
 
     java {
         withSourcesJar()
         withJavadocJar()
-    }
 
-    configure<JavaPluginExtension> {
         toolchain {
-            languageVersion = JavaLanguageVersion.of(25)
+            languageVersion.set(JavaLanguageVersion.of(25))
         }
     }
 
-    java {
-        sourceCompatibility = JavaVersion.VERSION_25
-        targetCompatibility = JavaVersion.VERSION_25
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_25)
+            freeCompilerArgs.add("-Xjsr305=strict")
+        }
     }
 
     tasks.withType<JavaCompile>().configureEach {
@@ -49,16 +50,11 @@ subprojects {
         )
     }
 
-    repositories {
-        mavenCentral()
-        mavenLocal()
-    }
-
     dependencies {
-        implementation(rootProject.libs.lombok)
+        compileOnly(rootProject.libs.lombok)
         annotationProcessor(rootProject.libs.lombok)
-        implementation(rootProject.libs.jetbrains)
-        implementation(rootProject.libs.jspecify)
+        compileOnlyApi(rootProject.libs.jetbrains)
+        compileOnlyApi(rootProject.libs.jspecify)
 
         // tests
         testImplementation(platform("org.junit:junit-bom:6.1.2"))
@@ -97,9 +93,6 @@ subprojects {
 
     spotless {
         java {
-            licenseHeaderFile(rootProject.file("config/license-header.txt"), "^(package|import|module) ")
-        }
-        kotlin {
             licenseHeaderFile(rootProject.file("config/license-header.txt"), "^(package|import|module) ")
         }
     }

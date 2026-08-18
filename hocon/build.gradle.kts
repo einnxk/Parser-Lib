@@ -1,21 +1,9 @@
-plugins {
-    kotlin("jvm") version "2.4.10"
-    id("com.gradleup.shadow") version "9.6.1"
-}
-
-repositories {
-    mavenCentral()
-}
-
 dependencies {
-    implementation(project(":common"))
-    implementation(rootProject.libs.hocon)
-    implementation(rootProject.libs.hocon.jackson)
-    implementation(rootProject.libs.hocon.jackson.kotlin)
-}
+    api(project(":common"))
 
-kotlin {
-    jvmToolchain(25)
+    implementation(libs.hocon)
+    implementation(libs.hocon.jackson)
+    implementation(libs.hocon.jackson.kotlin)
 }
 
 tasks.shadowJar {

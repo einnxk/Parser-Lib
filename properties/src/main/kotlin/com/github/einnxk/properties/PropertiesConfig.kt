@@ -18,7 +18,6 @@ package com.github.einnxk.properties
 import com.github.einnxk.common.annotations.Comment
 import com.github.einnxk.common.annotations.Comments
 import com.github.einnxk.common.annotations.Path
-import com.github.einnxk.common.annotations.validate.Required
 import com.github.einnxk.common.enums.ConfigMode
 import com.github.einnxk.common.exception.InvalidConfigurationException
 import com.github.einnxk.common.interfaces.Config
@@ -38,7 +37,6 @@ import java.lang.reflect.Modifier
 abstract class PropertiesConfig : PropertiesConfigMapper(), Config {
 
     private var strictLoad = false
-    protected var initialized = false
 
     override fun save() {
         if (configFile == null) {
@@ -47,9 +45,7 @@ abstract class PropertiesConfig : PropertiesConfigMapper(), Config {
 
         try {
             properties.clear()
-
             internalSave(javaClass)
-
             saveToProperties()
         } catch (e: Exception) {
             throw RuntimeException("Could not save properties config", e)
@@ -104,8 +100,7 @@ abstract class PropertiesConfig : PropertiesConfigMapper(), Config {
     @Throws(Exception::class)
     protected fun internalSave(clazz: Class<*>) {
         if (clazz.superclass != null &&
-            clazz.superclass != PropertiesConfig::class.java
-        ) {
+            clazz.superclass != PropertiesConfig::class.java) {
             internalSave(clazz.superclass)
         }
 
@@ -163,17 +158,9 @@ abstract class PropertiesConfig : PropertiesConfigMapper(), Config {
 
             if (exists) {
                 try {
-                    internalConverter.fromConfig(
-                        this,
-                        field,
-                        properties,
-                        path
-                    )
+                    internalConverter.fromConfig(this, field, properties, path)
 
                     validateRange(field)
-                    if (strictLoad) {
-                        validateRequired(field)
-                    }
                 } catch (e: Exception) {
                     throw InvalidConfigurationException(
                         "Could not load field '${field.name}'",
@@ -181,38 +168,15 @@ abstract class PropertiesConfig : PropertiesConfigMapper(), Config {
                     )
                 }
             } else {
-                if (strictLoad) {
-                    val required = field.getAnnotation(Required::class.java)
-                    if (required != null && required.value) {
-                        throw InvalidConfigurationException(
-                            "Required field '${field.name}' is missing in properties"
-                        )
-                    }
-                }
-
                 try {
-                    internalConverter.toConfig(
-                        this,
-                        field,
-                        properties,
-                        path
-                    )
-
-                    internalConverter.fromConfig(
-                        this,
-                        field,
-                        properties,
-                        path
-                    )
+                    internalConverter.toConfig(this, field, properties, path)
+                    internalConverter.fromConfig(this, field, properties, path)
 
                     validateRange(field)
                     needsSave = true
                 } catch (e: Exception) {
                     if (!skipFailedObject) {
-                        throw InvalidConfigurationException(
-                            "Could not initialize field '${field.name}'",
-                            e
-                        )
+                        throw InvalidConfigurationException("Could not initialize field '${field.name}'", e)
                     }
                 }
             }

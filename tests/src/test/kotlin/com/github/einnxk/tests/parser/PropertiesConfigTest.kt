@@ -18,7 +18,6 @@ package com.github.einnxk.tests.parser
 import com.github.einnxk.common.annotations.Path
 import com.github.einnxk.common.annotations.SerializeOptions
 import com.github.einnxk.common.annotations.validate.Range
-import com.github.einnxk.common.annotations.validate.Required
 import com.github.einnxk.common.enums.ConfigMode
 import com.github.einnxk.common.interfaces.Config
 import com.github.einnxk.properties.PropertiesConfig
@@ -40,11 +39,6 @@ class PropertiesConfigTest : AbstractConfigTests() {
     }
 
     @SerializeOptions(configMode = ConfigMode.FIELD_IS_KEY)
-    class RequiredProperties : PropertiesConfig() {
-        @Required var requiredField: String? = null
-    }
-
-    @SerializeOptions(configMode = ConfigMode.FIELD_IS_KEY)
     class RangeProperties : PropertiesConfig() {
         @Range(min = 1, max = 100) var value: Int = 50
     }
@@ -52,7 +46,6 @@ class PropertiesConfigTest : AbstractConfigTests() {
     override fun extension() = "properties"
     override fun newSimpleConfig() = SimpleProperties()
     override fun newNestedConfig() = NestedProperties()
-    override fun newRequiredConfig() = RequiredProperties()
     override fun newRangeConfig() = RangeProperties()
 
     override fun getConfigFile(config: Config) = (config as PropertiesConfig).configFile

@@ -19,15 +19,15 @@ import com.github.einnxk.yamler.core.section.ConfigSection
 import java.lang.reflect.ParameterizedType
 
 /**
- * The MapConverter is part of the default conversion library. This class
+ * The MapConverter is part of the default [Converter] library. This class
  * makes it able to convert a Map into YAML and back into a Map.
  *
  * @author EinNik
- * @since 3.0.0-SNAPSHOT
+ * @since 3.0.0
  */
-class MapConverter(private val internalConverter: InternalConverter) : Converter {
+open class MapConverter(private val internalConverter: InternalConverter) : Converter<Any, Any> {
 
-    override fun toConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any? {
+    override fun toConfig(type: Class<*>, obj: Any, parameterizedType: ParameterizedType?): Any {
         val source = obj as? Map<*, *> ?: return obj
         val result = HashMap<Any?, Any?>()
 
@@ -37,7 +37,8 @@ class MapConverter(private val internalConverter: InternalConverter) : Converter
                 continue
             }
 
-            val converter = internalConverter.getConverter(value.javaClass)
+            @Suppress("UNCHECKED_CAST")
+            val converter = internalConverter.getConverter(value.javaClass) as? Converter<Any, Any>
 
             result[key] = if (converter != null) {
                 converter.toConfig(value.javaClass, value, null)
@@ -49,7 +50,8 @@ class MapConverter(private val internalConverter: InternalConverter) : Converter
         return result
     }
 
-    override fun fromConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any? {
+    @Suppress("UNCHECKED_CAST")
+    override fun fromConfig(type: Class<*>, obj: Any, parameterizedType: ParameterizedType?): Any {
         if (parameterizedType == null) return obj
 
         val map: MutableMap<Any, Any?> = try {
@@ -63,7 +65,7 @@ class MapConverter(private val internalConverter: InternalConverter) : Converter
 
         if (actualTypeArguments.size == 2) {
             val keyClass = actualTypeArguments[0] as Class<*>
-            val currentSection = obj ?: HashMap<Any?, Any?>()
+            val currentSection = obj
 
             val map1 = currentSection as? Map<*, *> ?: (currentSection as ConfigSection).getRawMap()
 
@@ -79,6 +81,11 @@ class MapConverter(private val internalConverter: InternalConverter) : Converter
                     else -> entryKey
                 }
 
+                if (entryValue == null) {
+                    map[key] = null
+                    continue
+                }
+
                 val valueType = actualTypeArguments[1]
                 val clazz: Class<*>
                 val subParameterizedType: ParameterizedType?
@@ -91,7 +98,7 @@ class MapConverter(private val internalConverter: InternalConverter) : Converter
                     subParameterizedType = null
                 }
 
-                val converter = internalConverter.getConverter(clazz)
+                val converter = internalConverter.getConverter(clazz) as? Converter<Any, Any>
                 map[key] = if (converter != null) {
                     converter.fromConfig(clazz, entryValue, subParameterizedType)
                 } else {
@@ -100,7 +107,7 @@ class MapConverter(private val internalConverter: InternalConverter) : Converter
             }
         } else {
             val rawClass = parameterizedType.rawType as Class<*>
-            val converter = internalConverter.getConverter(rawClass)
+            val converter = internalConverter.getConverter(rawClass) as? Converter<Any, Any>
 
             if (converter != null) {
                 return converter.fromConfig(rawClass, obj, null)

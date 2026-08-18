@@ -36,7 +36,7 @@ import java.nio.charset.Charset
  * and writes them into the YAML File
  *
  * @author EinNik
- * @since 3.0.0-SNAPSHOT
+ * @since 3.0.0
  */
 open class BaseConfigMapper : ConfigBase() {
 

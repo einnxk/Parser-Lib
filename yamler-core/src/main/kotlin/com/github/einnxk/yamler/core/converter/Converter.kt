@@ -18,45 +18,65 @@ package com.github.einnxk.yamler.core.converter
 import java.lang.reflect.ParameterizedType
 
 /**
- * The base method vor our config converters or custom converters to overrides, which
- * qualifies them to parse YAML into an Object
+ * The base class, which allows fields in the [com.github.einnxk.yamler.core.YamlConfig] to be
+ * converted into the file and back from it.
  *
+ * Yamler contains a large library of default converters which allows to convert `Arrays`, `Enums`,
+ * `Lists`, `Maps`, `Primitive Types`, `ConfigSections`, `Sets`.
+ *
+ * @param T the type of the class we want to convert
+ * @param R the return type we converted into. As an example in most default converters this
+ *          is set to `Map<String, Object>`
  * @author EinNik
- * @since 3.0.0-SNAPSHOT
+ * @since 4.2.0
+ *
+ * @see ArrayConverter
+ * @see ConfigConverter
+ * @see EnumConverter
+ * @see ListConverter
+ * @see MapConverter
+ * @see PrimitiveConverter
+ * @see SectionConverter
+ * @see SetConverter
  */
-interface Converter {
+interface Converter<T, R> {
 
     /**
-     * This method gets called on save. It gets the Fields Type and the object the Config wants to save into it. This
-     * is needed to pretty print INTO the config.
+     * This method is called when the [com.github.einnxk.yamler.core.YamlConfig] is saved. In this method the
+     * type should be converted into [R] from the interface declaration.
      *
-     * @param type The type (Class) of the Field
-     * @param obj The object which is stored in the Config Object
-     * @param parameterizedType If the Class has some generic Information this is the Information otherwise this is null
-     * @return An Object (mostly a Map or a List)
-     * @throws Exception Some generic exception when something went wrong. This gets caught by the Converter
+     * @param type the type of the field
+     * @param obj the object [T] from the interface declaration
+     * @param parameterizedType the type of the method or else null
+     *
+     * @return the finished converted return type [R] from the interface declaration
+     * @throws Exception when an error occurs during the insertion into the [com.github.einnxk.yamler.core.YamlConfig]
      */
     @Throws(Exception::class)
-    fun toConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any?
+    fun toConfig(type: Class<*>, obj: T, parameterizedType: ParameterizedType?): R
 
     /**
-     * This method gets called when we want to load something out of the File. You get that what you give into the Config
-     * via toConfig as Object passed. The type is the Destination Field Type which this Object should be layed in.
+     * This method is called when a field from the [com.github.einnxk.yamler.core.YamlConfig] should parsed. In this method
+     * the return type from the [toConfig] method is parsed into the [T] from the interface declaration.
      *
-     * @param type The type (Class) of the Field
-     * @param obj The Object from toConfig
-     * @param parameterizedType If the Class has some generic Information this is the Information otherwise this is null
-     * @return The correct Object which can be hold by the Field
-     * @throws Exception Some generic exception when something went wrong. This gets caught by the Converter
+     * @param type the type of the field
+     * @param obj the object [R] from the interface declaration
+     * @param parameterizedType the type of the method or else null
+     *
+     * @return the finished converted return type [T] from the interface declaration
+     * @throws Exception when an error occurs during the retrieve into the [com.github.einnxk.yamler.core.YamlConfig]
      */
     @Throws(Exception::class)
-    fun fromConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any?
+    fun fromConfig(type: Class<*>, obj: R, parameterizedType: ParameterizedType?): T
 
     /**
-     * This checks if this Converter can convert the given Class
+     * A simple check that is fired when a converter for a field in the [com.github.einnxk.yamler.core.YamlConfig] is
+     * searched.
      *
-     * @param type The type (Class) of the Field to check
-     * @return true if this can convert that otherwise false
+     * This Check should be made like this `YourClass::class.java.isAssignableFrom(type)`.
+     *
+     * @param type the class we want to check if convertable
+     * @return returns if the class type is convertable
      */
-    fun supports(type: Class<*>): Boolean
+    fun supports(type: Class<*>) : Boolean
 }

@@ -15,12 +15,13 @@
  */
 package com.github.einnxk.yamler.core.mapper
 
+import com.github.einnxk.common.annotations.EnvironmentOverride
 import com.github.einnxk.common.annotations.Path
 import com.github.einnxk.common.annotations.validate.Range
-import com.github.einnxk.common.annotations.validate.Required
 import com.github.einnxk.common.enums.ConfigMode
 import com.github.einnxk.yamler.core.YamlConfig
 import com.github.einnxk.common.exception.InvalidConfigurationException
+import com.github.einnxk.yamler.core.converter.Converter
 import com.github.einnxk.yamler.core.section.ConfigSection
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
@@ -31,8 +32,9 @@ import java.util.concurrent.ConcurrentHashMap
  * a map into a class.
  *
  * @author EinNik
- * @since 3.0.0-SNAPSHOT
+ * @since 3.0.0
  */
+@Suppress("UNCHECKED_CAST")
 open class ConfigMapper : BaseConfigMapper() {
 
     @Throws(Exception::class)
@@ -70,16 +72,9 @@ open class ConfigMapper : BaseConfigMapper() {
             map[path] = field.get(this)
         }
 
-        val mapConverter = requireNotNull(
-            internalConverter.getConverter(Map::class.java)
-        ) { "No Map converter registered" }
-
-        @Suppress("UNCHECKED_CAST")
-        return mapConverter.toConfig(
-            HashMap::class.java,
-            map,
-            null
-        ) as Map<String, Any>
+        val mapConverter = requireNotNull(internalConverter.getConverter(Map::class.java)) {
+            "No Map converter registered" } as Converter<Any, Any>
+        return mapConverter.toConfig(HashMap::class.java, map, null) as Map<String, Any>
     }
 
     @Throws(Exception::class)
@@ -103,28 +98,63 @@ open class ConfigMapper : BaseConfigMapper() {
                 field.isAccessible = true
             }
 
+            val envOverride = field.getAnnotation(EnvironmentOverride::class.java)
+            if (envOverride != null && applyEnvironmentOverride(field, envOverride)) {
+                validateRange(field)
+                continue
+            }
+
             internalConverter.fromConfig(this as YamlConfig, field, ConfigSection.convertFromMap(section), path)
             validateRange(field)
-            validRequired(field)
         }
     }
 
-    @Throws(InvalidConfigurationException::class)
-    protected fun validRequired(field: Field) {
-        field.isAccessible = true
+    @Throws(IllegalStateException::class)
+    private fun applyEnvironmentOverride(field: Field, annotation: EnvironmentOverride): Boolean {
+        val rawValue = System.getenv(annotation.value)
 
-        if (!(field.isAnnotationPresent(Required::class.java))) {
-            return
+        if (rawValue == null) {
+            if (annotation.throwIfNull) {
+                throw IllegalStateException(
+                    "Environment variable '${annotation.value}' for field '${field.name}' is not set"
+                )
+            }
+            return false
         }
 
-        val required = field.getAnnotation(Required::class.java).value
-        if (!(required)) {
-            return
+        val convertedValue = parseEnvironmentValue(rawValue, field.type)
+
+        if (convertedValue == null) {
+            if (annotation.throwIfWrongType) {
+                throw IllegalStateException(
+                    "Environment variable '${annotation.value}' with value '$rawValue' could not be parsed " +
+                            "into type '${field.type.name}' for field '${field.name}'"
+                )
+            }
+            return false
         }
 
-        field.get(this) ?: throw InvalidConfigurationException(
-            "An field annotated with @Required is null: ${field.name}"
-        )
+        field.set(this, convertedValue)
+        return true
+    }
+
+    private fun parseEnvironmentValue(rawValue: String, type: Class<*>): Any? {
+        return when {
+            type == String::class.java -> rawValue
+            type == Int::class.java || type == java.lang.Integer::class.java -> rawValue.toIntOrNull()
+            type == Long::class.java || type == java.lang.Long::class.java -> rawValue.toLongOrNull()
+            type == Short::class.java || type == java.lang.Short::class.java -> rawValue.toShortOrNull()
+            type == Byte::class.java || type == java.lang.Byte::class.java -> rawValue.toByteOrNull()
+            type == Double::class.java || type == java.lang.Double::class.java -> rawValue.toDoubleOrNull()
+            type == Float::class.java || type == java.lang.Float::class.java -> rawValue.toFloatOrNull()
+            type == Boolean::class.java || type == java.lang.Boolean::class.java -> rawValue.toBooleanStrictOrNull()
+            type.isEnum -> {
+                @Suppress("UNCHECKED_CAST")
+                val enumType = type as Class<out Enum<*>>
+                enumType.enumConstants.firstOrNull { it.name.equals(rawValue, ignoreCase = true) }
+            }
+            else -> null
+        }
     }
 
     @Throws(InvalidConfigurationException::class)
