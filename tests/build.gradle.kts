@@ -1,5 +1,6 @@
 dependencies {
-    testImplementation(project(":common"))
+    api(project(":common"))
+
     testImplementation(project(":json", configuration = "shadow"))
     testImplementation(project(":yamler-core", configuration = "shadow"))
     testImplementation(project(":properties", configuration = "shadow"))

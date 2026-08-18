@@ -1,5 +1,5 @@
 dependencies {
-    implementation(project(":common"))
+    api(project(":common"))
 
     implementation(libs.hocon)
     implementation(libs.hocon.jackson)

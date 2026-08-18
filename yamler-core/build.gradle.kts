@@ -1,5 +1,5 @@
 dependencies {
-    implementation(project(":common"))
+    api(project(":common"))
 
     implementation(libs.snake.yml)
     implementation(kotlin("reflect"))

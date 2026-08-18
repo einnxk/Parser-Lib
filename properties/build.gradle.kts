@@ -1,5 +1,5 @@
 dependencies {
-    implementation(project(":common"))
+    api(project(":common"))
 }
 
 tasks.shadowJar {
