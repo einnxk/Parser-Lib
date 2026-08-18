@@ -1,5 +1,5 @@
 dependencies {
-    implementation(project(":common"))
+    api(project(":common"))
 
     implementation(libs.xml)
     implementation(libs.xml.kotlin)

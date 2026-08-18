@@ -1,5 +1,5 @@
 dependencies {
-    implementation(project(":common"))
+    api(project(":common"))
 
     implementation(libs.toml)
     implementation(libs.toml.kotlin)
