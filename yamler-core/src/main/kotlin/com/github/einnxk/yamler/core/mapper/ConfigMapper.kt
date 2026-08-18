@@ -15,6 +15,7 @@
  */
 package com.github.einnxk.yamler.core.mapper
 
+import com.github.einnxk.common.annotations.EnvironmentOverride
 import com.github.einnxk.common.annotations.Path
 import com.github.einnxk.common.annotations.validate.Range
 import com.github.einnxk.common.enums.ConfigMode
@@ -97,8 +98,62 @@ open class ConfigMapper : BaseConfigMapper() {
                 field.isAccessible = true
             }
 
+            val envOverride = field.getAnnotation(EnvironmentOverride::class.java)
+            if (envOverride != null && applyEnvironmentOverride(field, envOverride)) {
+                validateRange(field)
+                continue
+            }
+
             internalConverter.fromConfig(this as YamlConfig, field, ConfigSection.convertFromMap(section), path)
             validateRange(field)
+        }
+    }
+
+    @Throws(IllegalStateException::class)
+    private fun applyEnvironmentOverride(field: Field, annotation: EnvironmentOverride): Boolean {
+        val rawValue = System.getenv(annotation.value)
+
+        if (rawValue == null) {
+            if (annotation.throwIfNull) {
+                throw IllegalStateException(
+                    "Environment variable '${annotation.value}' for field '${field.name}' is not set"
+                )
+            }
+            return false
+        }
+
+        val convertedValue = parseEnvironmentValue(rawValue, field.type)
+
+        if (convertedValue == null) {
+            if (annotation.throwIfWrongType) {
+                throw IllegalStateException(
+                    "Environment variable '${annotation.value}' with value '$rawValue' could not be parsed " +
+                            "into type '${field.type.name}' for field '${field.name}'"
+                )
+            }
+            return false
+        }
+
+        field.set(this, convertedValue)
+        return true
+    }
+
+    private fun parseEnvironmentValue(rawValue: String, type: Class<*>): Any? {
+        return when {
+            type == String::class.java -> rawValue
+            type == Int::class.java || type == java.lang.Integer::class.java -> rawValue.toIntOrNull()
+            type == Long::class.java || type == java.lang.Long::class.java -> rawValue.toLongOrNull()
+            type == Short::class.java || type == java.lang.Short::class.java -> rawValue.toShortOrNull()
+            type == Byte::class.java || type == java.lang.Byte::class.java -> rawValue.toByteOrNull()
+            type == Double::class.java || type == java.lang.Double::class.java -> rawValue.toDoubleOrNull()
+            type == Float::class.java || type == java.lang.Float::class.java -> rawValue.toFloatOrNull()
+            type == Boolean::class.java || type == java.lang.Boolean::class.java -> rawValue.toBooleanStrictOrNull()
+            type.isEnum -> {
+                @Suppress("UNCHECKED_CAST")
+                val enumType = type as Class<out Enum<*>>
+                enumType.enumConstants.firstOrNull { it.name.equals(rawValue, ignoreCase = true) }
+            }
+            else -> null
         }
     }
 
