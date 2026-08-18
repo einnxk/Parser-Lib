@@ -58,7 +58,7 @@ public final class Example extends YamlConfig {
     private boolean enabled = false;
 
     @Range(min = 26, max = 64)
-    private Set<String> something = new ArrayList<>();
+    private Set<String> something = new HashSet<>();
 
     @EnvironmentOverride(name = "REDIS_HOST", throwIfWrongType = true, throwIfNull = true)
     private String datasourcePassword = "password";
