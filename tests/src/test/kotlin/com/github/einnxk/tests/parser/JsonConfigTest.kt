@@ -18,7 +18,6 @@ package com.github.einnxk.tests.parser
 import com.github.einnxk.common.annotations.Path
 import com.github.einnxk.common.annotations.SerializeOptions
 import com.github.einnxk.common.annotations.validate.Range
-import com.github.einnxk.common.annotations.validate.Required
 import com.github.einnxk.common.enums.ConfigMode
 import com.github.einnxk.common.interfaces.Config
 import com.github.einnxk.json.JsonConfig
@@ -40,11 +39,6 @@ class JsonConfigTest : AbstractConfigTests() {
     }
 
     @SerializeOptions(configMode = ConfigMode.FIELD_IS_KEY)
-    class RequiredJson : JsonConfig() {
-        @Required var requiredField: String? = null
-    }
-
-    @SerializeOptions(configMode = ConfigMode.FIELD_IS_KEY)
     class RangeJson : JsonConfig() {
         @Range(min = 1, max = 100) var value: Int = 50
     }
@@ -52,7 +46,6 @@ class JsonConfigTest : AbstractConfigTests() {
     override fun extension() = "json"
     override fun newSimpleConfig() = SimpleJson()
     override fun newNestedConfig() = NestedJson()
-    override fun newRequiredConfig() = RequiredJson()
     override fun newRangeConfig() = RangeJson()
 
     override fun getConfigFile(config: Config) = (config as JsonConfig).configFile

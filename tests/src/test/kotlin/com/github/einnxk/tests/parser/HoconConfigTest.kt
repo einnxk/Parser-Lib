@@ -18,7 +18,6 @@ package com.github.einnxk.tests.parser
 import com.github.einnxk.common.annotations.Path
 import com.github.einnxk.common.annotations.SerializeOptions
 import com.github.einnxk.common.annotations.validate.Range
-import com.github.einnxk.common.annotations.validate.Required
 import com.github.einnxk.common.enums.ConfigMode
 import com.github.einnxk.common.interfaces.Config
 import com.github.einnxk.hocon.HoconConfig
@@ -40,12 +39,6 @@ class HoconConfigTest : AbstractConfigTests() {
     }
 
     @SerializeOptions(configMode = ConfigMode.FIELD_IS_KEY)
-    class RequiredHocon : HoconConfig() {
-        @Required
-        var requiredField: String? = null
-    }
-
-    @SerializeOptions(configMode = ConfigMode.FIELD_IS_KEY)
     class RangeHocon : HoconConfig() {
         @Range(min = 1, max = 100) var value: Int = 50
     }
@@ -53,7 +46,6 @@ class HoconConfigTest : AbstractConfigTests() {
     override fun extension() = "conf"
     override fun newSimpleConfig() = SimpleHocon()
     override fun newNestedConfig() = NestedHocon()
-    override fun newRequiredConfig() = RequiredHocon()
     override fun newRangeConfig() = RangeHocon()
 
     override fun getConfigFile(config: Config) = (config as HoconConfig).configFile

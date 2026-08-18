@@ -31,7 +31,6 @@ abstract class AbstractConfigTests {
     abstract fun extension(): String
     abstract fun newSimpleConfig(): Config
     abstract fun newNestedConfig(): Config
-    abstract fun newRequiredConfig(): Config
     abstract fun newRangeConfig(): Config
 
     abstract fun setName(config: Config, value: String)
@@ -89,12 +88,6 @@ abstract class AbstractConfigTests {
         val r = newNestedConfig().also { it.init(file) }
         assertThat(getHost(r)).isEqualTo("db.example.com")
         assertThat(getDbPort(r)).isEqualTo(3306)
-    }
-
-    @Test fun `required field throws when null`() {
-        val c = newRequiredConfig().also { it.init(File(tempDir, "required.${extension()}")) }
-        assertThatThrownBy { c.load() }
-            .isInstanceOf(InvalidConfigurationException::class.java)
     }
 
     @Test fun `range throws when out of bounds`() {

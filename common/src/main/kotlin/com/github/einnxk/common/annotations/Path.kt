@@ -19,7 +19,7 @@ package com.github.einnxk.common.annotations
  * An annotation defining the name of the field in a file.
  *
  * @author EinNik
- * @since 4.0.0-SNAPSHOT
+ * @since 4.0.0
  */
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FIELD)

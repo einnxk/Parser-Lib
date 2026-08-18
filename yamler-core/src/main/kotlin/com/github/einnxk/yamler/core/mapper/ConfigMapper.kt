@@ -17,7 +17,6 @@ package com.github.einnxk.yamler.core.mapper
 
 import com.github.einnxk.common.annotations.Path
 import com.github.einnxk.common.annotations.validate.Range
-import com.github.einnxk.common.annotations.validate.Required
 import com.github.einnxk.common.enums.ConfigMode
 import com.github.einnxk.yamler.core.YamlConfig
 import com.github.einnxk.common.exception.InvalidConfigurationException
@@ -34,6 +33,7 @@ import java.util.concurrent.ConcurrentHashMap
  * @author EinNik
  * @since 3.0.0
  */
+@Suppress("UNCHECKED_CAST")
 open class ConfigMapper : BaseConfigMapper() {
 
     @Throws(Exception::class)
@@ -71,11 +71,8 @@ open class ConfigMapper : BaseConfigMapper() {
             map[path] = field.get(this)
         }
 
-        @Suppress("UNCHECKED_CAST")
         val mapConverter = requireNotNull(internalConverter.getConverter(Map::class.java)) {
             "No Map converter registered" } as Converter<Any, Any>
-
-        @Suppress("UNCHECKED_CAST")
         return mapConverter.toConfig(HashMap::class.java, map, null) as Map<String, Any>
     }
 
@@ -102,26 +99,7 @@ open class ConfigMapper : BaseConfigMapper() {
 
             internalConverter.fromConfig(this as YamlConfig, field, ConfigSection.convertFromMap(section), path)
             validateRange(field)
-            validRequired(field)
         }
-    }
-
-    @Throws(InvalidConfigurationException::class)
-    protected fun validRequired(field: Field) {
-        field.isAccessible = true
-
-        if (!(field.isAnnotationPresent(Required::class.java))) {
-            return
-        }
-
-        val required = field.getAnnotation(Required::class.java).value
-        if (!(required)) {
-            return
-        }
-
-        field.get(this) ?: throw InvalidConfigurationException(
-            "An field annotated with @Required is null: ${field.name}"
-        )
     }
 
     @Throws(InvalidConfigurationException::class)

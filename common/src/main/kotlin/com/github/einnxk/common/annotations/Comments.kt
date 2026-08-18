@@ -20,7 +20,7 @@ package com.github.einnxk.common.annotations
  * file is created or updated.
  *
  * @author EinNik
- * @since 4.0.0-SNAPSHOT
+ * @since 4.0.0
  */
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FIELD)
