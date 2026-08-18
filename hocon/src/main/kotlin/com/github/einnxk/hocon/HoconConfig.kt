@@ -28,13 +28,13 @@ import java.io.File
  * @author EinNik
  * @since 4.0.0-SNAPSHOT
  */
+@Suppress("UNCHECKED_CAST")
 abstract class HoconConfig : HoconMapper(), Config {
 
     @Throws(InvalidConfigurationException::class)
     override fun save() {
         requireNotNull(configFile) { "configFile is not set" }
         try {
-            @Suppress("UNCHECKED_CAST")
             val node = saveToMap(javaClass as Class<Any>)
             saveToHocon(node)
         } catch (e: Exception) {
@@ -55,7 +55,6 @@ abstract class HoconConfig : HoconMapper(), Config {
             configFile!!.parentFile?.mkdirs()
             configFile!!.createNewFile()
         }
-        @Suppress("UNCHECKED_CAST")
         loadMap(loadFromHocon(), javaClass as Class<Any>)
     }
 
@@ -67,7 +66,6 @@ abstract class HoconConfig : HoconMapper(), Config {
 
     @Throws(InvalidConfigurationException::class)
     override fun reload() {
-        @Suppress("UNCHECKED_CAST")
         loadMap(loadFromHocon(), javaClass as Class<Any>)
     }
 
@@ -76,7 +74,6 @@ abstract class HoconConfig : HoconMapper(), Config {
         requireNotNull(configFile) { "configFile is not set" }
         strictLoad = true
         try {
-            @Suppress("UNCHECKED_CAST")
             loadMap(loadFromHocon(), javaClass as Class<Any>)
         } finally {
             strictLoad = false

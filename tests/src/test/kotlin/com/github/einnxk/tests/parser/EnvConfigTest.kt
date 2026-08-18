@@ -18,7 +18,6 @@ package com.github.einnxk.tests.parser
 import com.github.einnxk.common.annotations.Path
 import com.github.einnxk.common.annotations.SerializeOptions
 import com.github.einnxk.common.annotations.validate.Range
-import com.github.einnxk.common.annotations.validate.Required
 import com.github.einnxk.common.enums.ConfigMode
 import com.github.einnxk.common.interfaces.Config
 import com.github.einnxk.env.EnvConfig
@@ -40,12 +39,6 @@ class EnvConfigTest : AbstractConfigTests() {
     }
 
     @SerializeOptions(configMode = ConfigMode.FIELD_IS_KEY)
-    class RequiredEnv : EnvConfig() {
-        @Required
-        var requiredField: String? = null
-    }
-
-    @SerializeOptions(configMode = ConfigMode.FIELD_IS_KEY)
     class RangeEnv : EnvConfig() {
         @Range(min = 1, max = 100) var value: Int = 50
     }
@@ -53,7 +46,6 @@ class EnvConfigTest : AbstractConfigTests() {
     override fun extension() = "env"
     override fun newSimpleConfig() = SimpleEnv()
     override fun newNestedConfig() = NestedEnv()
-    override fun newRequiredConfig() = RequiredEnv()
     override fun newRangeConfig() = RangeEnv()
 
     override fun getConfigFile(config: Config) = (config as EnvConfig).configFile

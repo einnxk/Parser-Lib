@@ -17,7 +17,6 @@ package com.github.einnxk.properties.mapper
 
 import com.github.einnxk.common.annotations.Path
 import com.github.einnxk.common.annotations.validate.Range
-import com.github.einnxk.common.annotations.validate.Required
 import com.github.einnxk.common.enums.ConfigMode
 import com.github.einnxk.common.exception.InvalidConfigurationException
 import com.github.einnxk.properties.PropertiesConfig
@@ -65,8 +64,7 @@ open class PropertiesConfigMapper : BaseConfigMapper() {
 
     private fun readClassFromProperties(instance: Any, clazz: Class<*>, props: Properties) {
         if (clazz.superclass != null &&
-            clazz.superclass != PropertiesConfig::class.java
-        ) {
+            clazz.superclass != PropertiesConfig::class.java) {
             readClassFromProperties(instance, clazz.superclass, props)
         }
 
@@ -87,7 +85,6 @@ open class PropertiesConfigMapper : BaseConfigMapper() {
             )
 
             validateRange(field)
-            validateRequired(field)
         }
     }
 
@@ -103,22 +100,6 @@ open class PropertiesConfigMapper : BaseConfigMapper() {
         }
 
         return path
-    }
-
-    @Throws(InvalidConfigurationException::class)
-    protected fun validateRequired(field: Field) {
-        field.isAccessible = true
-
-        val annotation = field.getAnnotation(Required::class.java)
-            ?: return
-
-        if (!annotation.value) return
-
-        if (field.get(this) == null) {
-            throw InvalidConfigurationException(
-                "Field annotated with @Required is null: ${field.name}"
-            )
-        }
     }
 
     @Throws(InvalidConfigurationException::class)

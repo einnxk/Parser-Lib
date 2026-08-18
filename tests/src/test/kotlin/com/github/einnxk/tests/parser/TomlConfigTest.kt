@@ -18,7 +18,6 @@ package com.github.einnxk.tests.parser
 import com.github.einnxk.common.annotations.Path
 import com.github.einnxk.common.annotations.SerializeOptions
 import com.github.einnxk.common.annotations.validate.Range
-import com.github.einnxk.common.annotations.validate.Required
 import com.github.einnxk.common.enums.ConfigMode
 import com.github.einnxk.common.interfaces.Config
 import com.github.einnxk.tests.AbstractConfigTests
@@ -40,12 +39,6 @@ class TomlConfigTest : AbstractConfigTests() {
     }
 
     @SerializeOptions(configMode = ConfigMode.FIELD_IS_KEY)
-    class RequiredToml : TomlConfig() {
-        @Required
-        var requiredField: String? = null
-    }
-
-    @SerializeOptions(configMode = ConfigMode.FIELD_IS_KEY)
     class RangeToml : TomlConfig() {
         @Range(min = 1, max = 100) var value: Int = 50
     }
@@ -53,7 +46,6 @@ class TomlConfigTest : AbstractConfigTests() {
     override fun extension() = "toml"
     override fun newSimpleConfig() = SimpleToml()
     override fun newNestedConfig() = NestedToml()
-    override fun newRequiredConfig() = RequiredToml()
     override fun newRangeConfig() = RangeToml()
 
     override fun getConfigFile(config: Config) = (config as TomlConfig).configFile

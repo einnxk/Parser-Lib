@@ -18,7 +18,6 @@ package com.github.einnxk.tests.parser
 import com.github.einnxk.common.annotations.Path
 import com.github.einnxk.common.annotations.SerializeOptions
 import com.github.einnxk.common.annotations.validate.Range
-import com.github.einnxk.common.annotations.validate.Required
 import com.github.einnxk.common.enums.ConfigMode
 import com.github.einnxk.common.interfaces.Config
 import com.github.einnxk.tests.AbstractConfigTests
@@ -40,11 +39,6 @@ class YamlConfigTest : AbstractConfigTests() {
     }
 
     @SerializeOptions(configMode = ConfigMode.FIELD_IS_KEY)
-    class RequiredYaml : YamlConfig() {
-        @Required var requiredField: String? = null
-    }
-
-    @SerializeOptions(configMode = ConfigMode.FIELD_IS_KEY)
     class RangeYaml : YamlConfig() {
         @Range(min = 1, max = 100) var value: Int = 50
     }
@@ -52,7 +46,6 @@ class YamlConfigTest : AbstractConfigTests() {
     override fun extension() = "yml"
     override fun newSimpleConfig() = SimpleYaml()
     override fun newNestedConfig() = NestedYaml()
-    override fun newRequiredConfig() = RequiredYaml()
     override fun newRangeConfig() = RangeYaml()
 
     override fun getConfigFile(config: Config) = (config as YamlConfig).configFile

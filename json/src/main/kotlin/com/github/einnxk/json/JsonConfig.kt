@@ -29,13 +29,13 @@ import java.io.File
  * @author EinNik
  * @since 4.0.0-SNAPSHOT
  */
+@Suppress("UNCHECKED_CAST")
 abstract class JsonConfig : JsonMapper(), Config {
 
     @Throws(InvalidConfigurationException::class)
     override fun save() {
         requireNotNull(configFile) { "configFile is not set" }
         try {
-            @Suppress("UNCHECKED_CAST")
             val jsonObject = saveToMap(javaClass as Class<Any>)
             saveToJson(jsonObject)
         } catch (e: Exception) {
@@ -78,7 +78,6 @@ abstract class JsonConfig : JsonMapper(), Config {
         requireNotNull(configFile) { "configFile is not set" }
         try {
             val jsonObject: JsonObject = loadFromJson()
-            @Suppress("UNCHECKED_CAST")
             loadMap(jsonObject, javaClass as Class<Any>)
         } catch (e: Exception) {
             throw InvalidConfigurationException("Could not load JSON config", e)

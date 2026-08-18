@@ -193,7 +193,6 @@ abstract class YamlConfig : ConfigMapper(),
                 try {
                     internalConverter.fromConfig(this, field, root!!, path)
                     validateRange(field)
-                    validRequired(field)
                 } catch (e: InvalidConfigurationException) {
                     throw e
                 } catch (e: java.lang.Exception) {
@@ -204,7 +203,6 @@ abstract class YamlConfig : ConfigMapper(),
                     internalConverter.toConfig(this, field, root!!, path)
                     internalConverter.fromConfig(this, field, root!!, path)
                     validateRange(field)
-                    validRequired(field)
                     save = true
                 } catch (e: InvalidConfigurationException) {
                     throw e

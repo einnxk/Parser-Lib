@@ -19,7 +19,6 @@ import com.github.einnxk.common.annotations.Comment
 import com.github.einnxk.common.annotations.Comments
 import com.github.einnxk.common.annotations.Path
 import com.github.einnxk.common.annotations.validate.Range
-import com.github.einnxk.common.annotations.validate.Required
 import com.github.einnxk.common.enums.ConfigMode
 import com.github.einnxk.common.exception.InvalidConfigurationException
 import com.github.einnxk.env.EnvConfig
@@ -89,15 +88,6 @@ open class EnvMapper : BaseEnvMapper() {
             val raw = values[key]
 
             if (raw == null) {
-                if (strictLoad) {
-                    val required = field.getAnnotation(Required::class.java)
-                    if (required != null && required.value) {
-                        throw InvalidConfigurationException(
-                            "Required field '${field.name}' is missing in .env"
-                        )
-                    }
-                }
-
                 val defaultValue = field.get(this)
                 if (defaultValue != null) {
                     needsSave = true
@@ -109,7 +99,6 @@ open class EnvMapper : BaseEnvMapper() {
             field.set(this, convertValue(field, raw))
 
             validateRange(field)
-            if (strictLoad) validRequired(field)
         }
 
         if (needsSave) {
@@ -176,17 +165,6 @@ open class EnvMapper : BaseEnvMapper() {
             }
         }
         return comments
-    }
-
-    @Throws(InvalidConfigurationException::class)
-    internal fun validRequired(field: Field) {
-        field.isAccessible = true
-        if (!field.isAnnotationPresent(Required::class.java)) return
-        val required = field.getAnnotation(Required::class.java).value
-        if (!required) return
-        field.get(this) ?: throw InvalidConfigurationException(
-            "A field annotated with @Required is null: ${field.name}"
-        )
     }
 
     @Throws(InvalidConfigurationException::class)
