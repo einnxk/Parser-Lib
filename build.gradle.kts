@@ -3,7 +3,7 @@ plugins {
     id("java-library")
     id("maven-publish")
     id("com.gradleup.shadow") version "9.6.1"
-    id("com.diffplug.spotless") version "8.10.0"
+    id("com.diffplug.spotless") version "8.10.1"
     kotlin("jvm") version "2.4.10"
 }
 
