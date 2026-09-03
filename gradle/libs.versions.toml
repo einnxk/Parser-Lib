@@ -1,5 +1,5 @@
 [versions]
-lombok = "1.18.46"
+lombok = "1.18.48"
 gson = "2.14.0"
 jetbrains = "26.1.0"
 jspecify = "1.0.1"
