@@ -7,7 +7,7 @@ toml = "2.22.2"
 xml = "2.22.2"
 hocon = "1.4.9"
 hocon-jackson = "2.22.2"
-snakeyml = "2.6"
+snakeyml = "2.7"
 papermc = "1.21.11-R0.1-SNAPSHOT"
 
 [libraries]
