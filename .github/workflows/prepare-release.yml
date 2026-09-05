@@ -1,0 +1,47 @@
+name: prepare-release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Version bumpen
+        id: bump
+        run: |
+          set -euo pipefail
+          chmod +x version-bump.sh
+          new_version=$(./version-bump.sh)
+          echo "new_version=${new_version}" >> "$GITHUB_OUTPUT"
+
+      - name: Release-Branch erstellen und pushen
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "release/${{ steps.bump.outputs.new_version }}"
+          git add version-info.json
+          git commit -m "chore: bump version to ${{ steps.bump.outputs.new_version }}"
+          git push origin "release/${{ steps.bump.outputs.new_version }}"
+
+      - name: Pull Request erstellen
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh pr create \
+            --base master \
+            --head "release/${{ steps.bump.outputs.new_version }}" \
+            --title "Release v${{ steps.bump.outputs.new_version }}" \
+            --body "Automatischer Version-Bump auf ${{ steps.bump.outputs.new_version }}."
