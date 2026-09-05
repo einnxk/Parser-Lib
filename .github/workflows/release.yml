@@ -1,16 +1,16 @@
 name: release
 
 on:
-  push:
+  pull_request:
+    types: [closed]
     branches: [master]
-  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  bump-and-release:
-    if: github.ref == 'refs/heads/master'
+  release:
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout master
@@ -19,27 +19,17 @@ jobs:
           ref: master
           fetch-depth: 0
 
-      - name: Version bumpen
-        id: bump
+      - name: Version aus version-info.json lesen
+        id: version
         run: |
           set -euo pipefail
-          chmod +x version-bump.sh
-          new_version=$(./version-bump.sh)
-          echo "new_version=${new_version}" >> "$GITHUB_OUTPUT"
-
-      - name: Bump committen und pushen
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add version-info.json
-          git commit -m "chore: bump version to ${{ steps.bump.outputs.new_version }} [skip ci]"
-          git push origin HEAD:master
+          version=$(jq -r '.version' version-info.json)
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
 
       - name: Tag erstellen und pushen
         run: |
           set -euo pipefail
-          version="${{ steps.bump.outputs.new_version }}"
+          version="${{ steps.version.outputs.version }}"
           git tag "$version"
           git push origin "$version"
 
@@ -48,7 +38,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          version="${{ steps.bump.outputs.new_version }}"
+          version="${{ steps.version.outputs.version }}"
           gh release create "$version" \
             --title "Release v${version}" \
             --generate-notes \
