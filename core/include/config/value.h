@@ -75,16 +75,19 @@ namespace config {
         explicit value(T&& val, const value_type explicit_type)
             : type_(explicit_type), data_(std::forward<T>(val)) {}
 
-        [[nodiscard]] value_type type() const noexcept {
+        [[nodiscard]]
+        value_type type() const noexcept {
             return type_;
         }
 
-        [[nodiscard]] bool is_null() const noexcept {
+        [[nodiscard]]
+        bool is_null() const noexcept {
             return type_ == value_type::Null_value;
         }
 
         template<typename T>
-        [[nodiscard]] const T& as() const {
+        [[nodiscard]]
+        const T& as() const {
             if (auto* ptr = std::get_if<T>(&data_)) {
                 return *ptr;
             }
@@ -97,7 +100,8 @@ namespace config {
         }
 
         template<typename T>
-        [[nodiscard]] T& as() {
+        [[nodiscard]]
+        T& as() {
             if (auto* ptr = std::get_if<T>(&data_)) {
                 return *ptr;
             }
