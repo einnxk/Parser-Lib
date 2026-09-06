@@ -1,6 +1,6 @@
 #pragma once
-#include <expected>
 
+#include <expected>
 #include "value.h"
 
 namespace config {
