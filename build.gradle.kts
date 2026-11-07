@@ -13,7 +13,6 @@ tasks.withType<Test> {
 
 allprojects {
   group = "com.github.einnxk.parser"
-  version = "4.2.6"
 }
 
 subprojects {
