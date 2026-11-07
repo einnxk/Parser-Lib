@@ -27,53 +27,42 @@ import java.lang.reflect.ParameterizedType
  */
 open class PrimitiveConverter : Converter<Any, Any> {
 
-    private val types: Set<String> = setOf(
-        "boolean",
-        "char",
-        "byte",
-        "short",
-        "int",
-        "float",
-        "long",
-        "double"
-    )
+  private val types: Set<Class<*>> = listOf(
+    Boolean::class,
+    Char::class,
+    Byte::class,
+    Short::class,
+    Int::class,
+    Long::class,
+    Float::class,
+    Double::class
+  ).flatMap { listOf(it.javaPrimitiveType!!, it.javaObjectType) }.toSet()
 
     override fun toConfig(type: Class<*>, obj: Any, parameterizedType: ParameterizedType?): Any {
         return obj
     }
 
     override fun fromConfig(type: Class<*>, obj: Any, parameterizedType: ParameterizedType?): Any {
-        return when (type) {
-            java.lang.Short.TYPE -> when (obj) {
-                is Short -> obj
-                is Int -> obj.toShort()
-                else -> obj
-            }
+      return when (type.kotlin.javaObjectType) {
+        Byte::class.javaObjectType -> if (obj is Number) obj.toByte() else obj
+        Short::class.javaObjectType -> if (obj is Number) obj.toShort() else obj
+        Int::class.javaObjectType -> if (obj is Number) obj.toInt() else obj
+        Long::class.javaObjectType -> if (obj is Number) obj.toLong() else obj
+        Float::class.javaObjectType -> if (obj is Number) obj.toFloat() else obj
+        Double::class.javaObjectType -> if (obj is Number) obj.toDouble() else obj
 
-            java.lang.Byte.TYPE -> when (obj) {
-                is Byte -> obj
-                is Int -> obj.toByte()
-                else -> obj
-            }
-
-            java.lang.Float.TYPE -> when (obj) {
-                is Float -> obj
-                is Int -> obj.toFloat()
-                is Double -> obj.toFloat()
-                else -> obj
-            }
-
-            Character.TYPE -> when (obj) {
-                is Char -> obj
-                is String -> obj.first()
-                else -> obj
-            }
-
-            else -> obj
+        Char::class.javaObjectType -> when (obj) {
+          is Char -> obj
+          is String -> if (obj.isNotEmpty()) obj.first() else obj
+          is Number -> obj.toInt().toChar()
+          else -> obj
         }
+
+        else -> obj
+      }
     }
 
     override fun supports(type: Class<*>): Boolean {
-        return types.contains(type.name)
+        return types.contains(type)
     }
 }
