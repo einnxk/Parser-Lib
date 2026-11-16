@@ -16,6 +16,8 @@
 package com.github.einnxk.yamler.core.converter
 
 import com.github.einnxk.yamler.core.section.ConfigSection
+import java.lang.reflect.Field
+import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
 
 /**
@@ -23,67 +25,77 @@ import java.lang.reflect.ParameterizedType
  * makes it able to convert whole [ConfigSection]'s into YAML and back into an [ConfigSection].
  *
  * @author EinNik
- * @since 3.0.10
+ * @since 4.2.9
  */
 open class SectionConverter(private val internalConverter: InternalConverter) : Converter<Any, Any> {
 
-    override fun toConfig(type: Class<*>, obj: Any, parameterizedType: ParameterizedType?): Any {
-        val result = LinkedHashMap<Any, Any?>()
-        val fields = getAllFields(obj.javaClass)
+  override fun toConfig(type: Class<*>, obj: Any, parameterizedType: ParameterizedType?): Any {
+    val result = LinkedHashMap<Any, Any?>()
 
-        for (field in fields) {
-            if (java.lang.reflect.Modifier.isTransient(field.modifiers) ||
-                java.lang.reflect.Modifier.isStatic(field.modifiers) ||
-                java.lang.reflect.Modifier.isFinal(field.modifiers)) continue
+    for (field in getAllFields(obj.javaClass)) {
+      if (isExcluded(field)) continue
 
-            field.isAccessible = true
-            val value = field.get(obj) ?: continue
+      field.isAccessible = true
+      val value = field.get(obj) ?: continue
 
-            @Suppress("UNCHECKED_CAST")
-            val converter = internalConverter.getConverter(value.javaClass) as? Converter<Any, Any>
-            result[field.name] = converter?.toConfig(value.javaClass, value, null) ?: value
-        }
-
-        return result
+      val converter = resolveConverter(field.type, value.javaClass)
+      result[field.name] = converter?.toConfig(field.type, value, field.genericType as? ParameterizedType) ?: value
     }
 
-    @Suppress("UNCHECKED_CAST")
-    override fun fromConfig(type: Class<*>, obj: Any, parameterizedType: ParameterizedType?): Any {
-        val instance = type.getDeclaredConstructor().newInstance() as ConfigSection
-        val rawMap: Map<Any, Any?> = when (obj) {
-            is ConfigSection -> obj.getRawMap()
-            is Map<*, *> -> obj as Map<Any, Any?>
-            else -> return instance
-        }
+    return result
+  }
 
-        for ((key, value) in rawMap) {
-            if (value == null) continue
+  @Suppress("UNCHECKED_CAST")
+  override fun fromConfig(type: Class<*>, obj: Any, parameterizedType: ParameterizedType?): Any {
+    val instance = type.getDeclaredConstructor().newInstance() as ConfigSection
 
-            val fieldList = getAllFields(type)
-            val matchingField = fieldList.firstOrNull { it.name == key.toString() }
-
-            if (matchingField != null) {
-                matchingField.isAccessible = true
-                val converter = internalConverter.getConverter(matchingField.type) as? Converter<Any, Any>
-                val converted = converter?.fromConfig(matchingField.type, value, null) ?: value
-                matchingField.set(instance, converted)
-            }
-        }
-
-        return instance
+    val rawMap: Map<Any, Any?> = when (obj) {
+      is ConfigSection -> obj.getRawMap()
+      is Map<*, *> -> obj as Map<Any, Any?>
+      else -> return instance
     }
 
-    private fun getAllFields(clazz: Class<*>): List<java.lang.reflect.Field> {
-        val fields = mutableListOf<java.lang.reflect.Field>()
-        var current: Class<*>? = clazz
-        while (current != null && current != ConfigSection::class.java && current != Any::class.java) {
-            fields.addAll(current.declaredFields)
-            current = current.superclass
-        }
-        return fields
+    val fieldsByName = getAllFields(type).associateBy { it.name }
+
+    for ((key, value) in rawMap) {
+      if (value == null) continue
+
+      val field = fieldsByName[key.toString()] ?: continue
+      if (isExcluded(field)) continue
+
+      field.isAccessible = true
+      val converter = resolveConverter(field.type, value.javaClass)
+      val converted = converter?.fromConfig(field.type, value, field.genericType as? ParameterizedType) ?: value
+      field.set(instance, converted)
     }
 
-    override fun supports(type: Class<*>): Boolean {
-        return ConfigSection::class.java.isAssignableFrom(type) && type != ConfigSection::class.java
+    return instance
+  }
+
+  override fun supports(type: Class<*>): Boolean {
+    return ConfigSection::class.java.isAssignableFrom(type) && type != ConfigSection::class.java
+  }
+
+  @Suppress("UNCHECKED_CAST")
+  private fun resolveConverter(declaredType: Class<*>, runtimeType: Class<*>): Converter<Any, Any>? {
+    val converter = internalConverter.getConverter(declaredType) ?: internalConverter.getConverter(runtimeType)
+    return converter as? Converter<Any, Any>
+  }
+
+  private fun isExcluded(field: Field): Boolean {
+    val modifiers = field.modifiers
+    return Modifier.isTransient(modifiers) || Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers)
+  }
+
+  private fun getAllFields(clazz: Class<*>): List<Field> {
+    val fields = mutableListOf<Field>()
+    var current: Class<*>? = clazz
+
+    while (current != null && current != ConfigSection::class.java && current != Any::class.java) {
+      fields.addAll(current.declaredFields)
+      current = current.superclass
     }
+
+    return fields
+  }
 }
