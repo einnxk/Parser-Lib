@@ -78,5 +78,7 @@ open class MiniMessageComponentConverter : Converter<Component, Any> {
     else -> null
   }
 
-  override fun supports(type: Class<*>): Boolean = Component::class.java == type
+  override fun supports(type: Class<*>): Boolean {
+    return Component::class.java.isAssignableFrom(type)
+  }
 }
